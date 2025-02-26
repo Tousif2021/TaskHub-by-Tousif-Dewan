@@ -52,7 +52,7 @@ const mockReminders: Reminder[] = [
   },
 ];
 
-import { motion } from "framer-motion";
+// Removed duplicate import
 
 const Reminders = () => {
   const [reminders, setReminders] = useState<Reminder[]>(mockReminders);
