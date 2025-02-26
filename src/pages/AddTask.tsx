@@ -20,21 +20,39 @@ const AddTask = () => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.from("tasks").insert({
-        title,
-        description,
-        due_date: dueDate,
-        due_time: dueTime,
-        priority,
-      });
+      // Get the current user's session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        throw new Error("Please login to create tasks");
+      }
 
-      if (error) throw error;
+      if (!session) {
+        throw new Error("Please login to create tasks");
+      }
+
+      const { error: insertError } = await supabase
+        .from("tasks")
+        .insert({
+          title,
+          description,
+          due_date: dueDate,
+          due_time: dueTime,
+          priority,
+          user_id: session.user.id,
+          completed: false
+        });
+
+      if (insertError) {
+        console.error("Insert error:", insertError);
+        throw new Error(insertError.message);
+      }
 
       toast.success("Task created successfully!");
       navigate("/");
     } catch (error) {
       console.error("Error creating task:", error);
-      toast.error("Failed to create task");
+      toast.error(error instanceof Error ? error.message : "Failed to create task");
     } finally {
       setIsSubmitting(false);
     }
