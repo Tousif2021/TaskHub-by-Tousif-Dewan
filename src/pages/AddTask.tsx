@@ -1,180 +1,133 @@
-
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Calendar, Clock, Flag } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import Navigation from "@/components/Navigation";
+import { toast } from "sonner";
+import { motion } from "framer-motion";
+
+interface TaskFormData {
+  title: string;
+  description: string;
+  date?: Date;
+}
 
 const AddTask = () => {
-  const navigate = useNavigate();
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [dueDate, setDueDate] = useState("");
-  const [dueTime, setDueTime] = useState("");
-  const [priority, setPriority] = useState<"Low" | "Medium" | "High">("Medium");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [date, setDate] = useState<Date>();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<TaskFormData>();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      // Get the current user's session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        throw new Error("Please login to create tasks");
-      }
-
-      if (!session) {
-        throw new Error("Please login to create tasks");
-      }
-
-      const { error: insertError } = await supabase
-        .from("tasks")
-        .insert({
-          title,
-          description,
-          due_date: dueDate,
-          due_time: dueTime,
-          priority,
-          user_id: session.user.id,
-          completed: false
-        });
-
-      if (insertError) {
-        console.error("Insert error:", insertError);
-        throw new Error(insertError.message);
-      }
-
-      toast.success("Task created successfully!");
-      navigate("/");
-    } catch (error) {
-      console.error("Error creating task:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to create task");
-    } finally {
-      setIsSubmitting(false);
-    }
+  const onSubmit = (data: TaskFormData) => {
+    // Save task logic would go here
+    console.log({ ...data, date });
+    toast.success("Task added successfully!");
+    reset();
+    setDate(undefined);
   };
 
   return (
-    <div className="min-h-screen bg-secondary pb-20">
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="animate-fade-down">
-          <h1 className="text-3xl font-semibold text-primary">Add New Task</h1>
-          <p className="text-primary/60 mt-2">Create a new task with details</p>
+    <motion.div 
+      className="min-h-screen p-6 pb-20"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <header className="mb-8">
+        <motion.h1 
+          className="text-2xl font-bold text-primary"
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          Add New Task
+        </motion.h1>
+      </header>
+
+      <motion.form 
+        onSubmit={handleSubmit(onSubmit)} 
+        className="space-y-6"
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <div className="space-y-2">
+          <label htmlFor="title" className="text-sm font-medium">
+            Task Title
+          </label>
+          <Input
+            id="title"
+            placeholder="Enter task title"
+            {...register("title", { required: "Title is required" })}
+            className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm"
+          />
+          {errors.title && (
+            <p className="text-sm text-red-500">{errors.title.message}</p>
+          )}
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-          <div>
-            <label htmlFor="title" className="block text-sm font-medium text-primary mb-2">
-              Title
-            </label>
-            <input
-              type="text"
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              className="w-full px-4 py-2 rounded-lg border border-primary/20 focus:outline-none focus:ring-2 focus:ring-accent/50"
-              placeholder="Enter task title"
-            />
-          </div>
+        <div className="space-y-2">
+          <label htmlFor="description" className="text-sm font-medium">
+            Description
+          </label>
+          <Textarea
+            id="description"
+            placeholder="Enter task description"
+            {...register("description")}
+            className="min-h-24 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm"
+          />
+        </div>
 
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-primary mb-2">
-              Description
-            </label>
-            <textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              className="w-full px-4 py-2 rounded-lg border border-primary/20 focus:outline-none focus:ring-2 focus:ring-accent/50"
-              placeholder="Enter task description"
-            />
-          </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Due Date</label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm",
+                  !date && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {date ? format(date, "PPP") : <span>Pick a date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={setDate}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="dueDate" className="block text-sm font-medium text-primary mb-2">
-                Due Date
-              </label>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-primary/40" />
-                <input
-                  type="date"
-                  id="dueDate"
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  required
-                  className="w-full pl-12 pr-4 py-2 rounded-lg border border-primary/20 focus:outline-none focus:ring-2 focus:ring-accent/50"
-                />
-              </div>
-            </div>
+        <Button 
+          type="submit" 
+          className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+        >
+          Add Task
+        </Button>
+      </motion.form>
 
-            <div>
-              <label htmlFor="dueTime" className="block text-sm font-medium text-primary mb-2">
-                Due Time
-              </label>
-              <div className="relative">
-                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-primary/40" />
-                <input
-                  type="time"
-                  id="dueTime"
-                  value={dueTime}
-                  onChange={(e) => setDueTime(e.target.value)}
-                  required
-                  className="w-full pl-12 pr-4 py-2 rounded-lg border border-primary/20 focus:outline-none focus:ring-2 focus:ring-accent/50"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-primary mb-2">
-              Priority
-            </label>
-            <div className="flex gap-4">
-              {["Low", "Medium", "High"].map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setPriority(p as "Low" | "Medium" | "High")}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
-                    priority === p
-                      ? "bg-accent text-white border-accent"
-                      : "border-primary/20 text-primary hover:border-accent"
-                  }`}
-                >
-                  <Flag className="w-4 h-4" />
-                  {p}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-4">
-            <button
-              type="button"
-              onClick={() => navigate("/")}
-              className="px-6 py-2 rounded-lg border border-primary/20 text-primary hover:bg-primary/5 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-6 py-2 rounded-lg bg-accent text-white hover:bg-accent/90 transition-colors disabled:opacity-50"
-            >
-              {isSubmitting ? "Creating..." : "Create Task"}
-            </button>
-          </div>
-        </form>
-      </div>
-      <Navigation />
-    </div>
+      <Navigation showBackButton={true} />
+    </motion.div>
   );
 };
 

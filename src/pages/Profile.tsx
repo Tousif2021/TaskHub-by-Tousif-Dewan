@@ -1,181 +1,71 @@
-
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { User } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import Navigation from "@/components/Navigation";
+import { motion } from "framer-motion";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Settings, LogOut, Moon, Sun, UserCircle } from "lucide-react";
 
 const Profile = () => {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
-      } catch (error) {
-        console.error("Error checking auth status:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkUser();
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      let result;
-      if (isLogin) {
-        result = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-      } else {
-        result = await supabase.auth.signUp({
-          email,
-          password,
-        });
-      }
-
-      if (result.error) throw result.error;
-
-      if (!isLogin && result.data.user) {
-        toast.success("Successfully signed up! Please verify your email.");
-      } else if (isLogin && result.data.user) {
-        toast.success("Successfully logged in!");
-        navigate("/");
-      }
-    } catch (error: any) {
-      toast.error(error.message || "An error occurred during authentication");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSignOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      toast.success("Successfully signed out!");
-      navigate("/");
-    } catch (error: any) {
-      toast.error(error.message || "Error signing out");
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-secondary pb-20">
-      <div className="max-w-md mx-auto p-6">
-        <div className="animate-fade-down">
-          <h1 className="text-3xl font-semibold text-primary flex items-center gap-2">
-            <User className="w-8 h-8" />
-            {user ? "Your Profile" : "Authentication"}
-          </h1>
-          <p className="text-primary/60 mt-2">
-            {user ? "Manage your account" : "Sign in or create a new account"}
-          </p>
+    <motion.div 
+      className="min-h-screen p-6 pb-20"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <header className="mb-8">
+        <motion.h1 
+          className="text-2xl font-bold text-primary"
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          My Profile
+        </motion.h1>
+      </header>
+
+      <motion.div 
+        className="flex flex-col items-center gap-4 mb-8"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Avatar className="w-24 h-24 border-4 border-accent/20">
+          <AvatarImage src="https://github.com/shadcn.png" alt="@user" />
+          <AvatarFallback className="bg-accent/10 text-accent-foreground text-xl">
+            <UserCircle className="w-12 h-12" />
+          </AvatarFallback>
+        </Avatar>
+        <h2 className="text-xl font-semibold">John Doe</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400">john.doe@example.com</p>
+      </motion.div>
+
+      <motion.div 
+        className="space-y-4"
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
+          <div className="divide-y divide-gray-200 dark:divide-gray-700">
+            <Button variant="ghost" className="w-full justify-start py-6 h-auto">
+              <Settings className="mr-3 h-5 w-5 text-gray-500" />
+              <span>Settings</span>
+            </Button>
+            <Button variant="ghost" className="w-full justify-start py-6 h-auto">
+              <Moon className="mr-3 h-5 w-5 text-gray-500" />
+              <span>Dark Mode</span>
+            </Button>
+            <Button variant="ghost" className="w-full justify-start py-6 h-auto text-red-500 hover:text-red-600 hover:bg-red-50/50 dark:hover:bg-red-900/20">
+              <LogOut className="mr-3 h-5 w-5" />
+              <span>Logout</span>
+            </Button>
+          </div>
         </div>
+      </motion.div>
 
-        {loading ? (
-          <div className="mt-8 text-center text-primary/60">Loading...</div>
-        ) : user ? (
-          <div className="mt-8 space-y-6 bg-white p-6 rounded-lg shadow-sm">
-            <div>
-              <h2 className="font-medium text-primary">Email</h2>
-              <p className="text-primary/60">{user.email}</p>
-            </div>
-            <button
-              onClick={handleSignOut}
-              className="w-full px-6 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"
-            >
-              Sign Out
-            </button>
-          </div>
-        ) : (
-          <div className="mt-8">
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <div className="flex gap-4 mb-6">
-                <button
-                  onClick={() => setIsLogin(true)}
-                  className={`flex-1 py-2 text-center rounded-lg transition-colors ${
-                    isLogin
-                      ? "bg-accent text-white"
-                      : "bg-primary/5 text-primary hover:bg-primary/10"
-                  }`}
-                >
-                  Login
-                </button>
-                <button
-                  onClick={() => setIsLogin(false)}
-                  className={`flex-1 py-2 text-center rounded-lg transition-colors ${
-                    !isLogin
-                      ? "bg-accent text-white"
-                      : "bg-primary/5 text-primary hover:bg-primary/10"
-                  }`}
-                >
-                  Sign Up
-                </button>
-              </div>
-
-              <form onSubmit={handleAuth} className="space-y-4">
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-primary mb-2">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="w-full px-4 py-2 rounded-lg border border-primary/20 focus:outline-none focus:ring-2 focus:ring-accent/50"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-primary mb-2">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    minLength={6}
-                    className="w-full px-4 py-2 rounded-lg border border-primary/20 focus:outline-none focus:ring-2 focus:ring-accent/50"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full px-6 py-2 rounded-lg bg-accent text-white hover:bg-accent/90 transition-colors disabled:opacity-50"
-                >
-                  {loading ? "Processing..." : isLogin ? "Login" : "Sign Up"}
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+      <Navigation showBackButton={true} />
+    </motion.div>
   );
 };
 
