@@ -1,41 +1,7 @@
-import { useLocation, Link } from "react-router-dom";
-import { Home, List, Bell, User, FolderDot } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { Home, PlusCircle, Bell, FolderOpen, User } from "lucide-react";
 
-interface NavigationProps {
-  showBackButton?: boolean;
-}
-
-const NavItem = ({ 
-  icon: Icon, 
-  label, 
-  to,
-  active
-}: { 
-  icon: any; 
-  label: string; 
-  to: string;
-  active: boolean;
-}) => (
-  <Link
-    to={to}
-    className={`flex flex-col items-center gap-1 transition-all duration-300 ${
-      active 
-        ? "text-accent scale-110" 
-        : "text-primary/60 hover:text-accent hover:scale-105"
-    }`}
-  >
-    <div>
-      <Icon className="w-6 h-6" />
-    </div>
-    <span 
-      className="text-xs font-medium"
-    >
-      {label}
-    </span>
-  </Link>
-);
-
-const Navigation = ({ showBackButton = false }: NavigationProps) => {
+export default function Navigation() {
   const location = useLocation();
 
   const isActive = (path: string) => {
@@ -43,39 +9,48 @@ const Navigation = ({ showBackButton = false }: NavigationProps) => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 flex justify-around items-center py-4 px-6 bg-background/80 backdrop-blur-md border-t">
-      <NavItem 
-        icon={Home} 
-        label="Home" 
-        to="/"
-        active={isActive('/')}
-      />
-      <NavItem 
-        icon={FolderDot} 
-        label="Files" 
-        to="/files"
-        active={isActive('/files')}
-      />
-      <NavItem 
-        icon={List} 
-        label="Task Preview" 
-        to="/tasks"
-        active={isActive('/tasks')}
-      />
-      <NavItem 
-        icon={Bell} 
-        label="Reminders" 
-        to="/reminders" 
-        active={isActive('/reminders')} 
-      />
-      <NavItem 
-        icon={User} 
-        label="Profile" 
-        to="/profile" 
-        active={isActive('/profile')} 
-      />
+    <nav className="fixed bottom-0 left-0 right-0 bg-background border-t py-2 px-4 z-10">
+      <div className="flex items-center justify-around max-w-xl mx-auto">
+        <Link 
+          to="/" 
+          className={`flex flex-col items-center p-2 ${isActive('/') ? 'text-primary' : 'text-muted-foreground'}`}
+        >
+          <Home className="h-6 w-6" />
+          <span className="text-xs mt-1">Home</span>
+        </Link>
+
+        <Link 
+          to="/reminders" 
+          className={`flex flex-col items-center p-2 ${isActive('/reminders') ? 'text-primary' : 'text-muted-foreground'}`}
+        >
+          <Bell className="h-6 w-6" />
+          <span className="text-xs mt-1">Reminders</span>
+        </Link>
+
+        <Link 
+          to="/task-preview" 
+          className={`flex flex-col items-center p-2 ${isActive('/task-preview') ? 'text-primary' : 'text-muted-foreground'}`}
+        >
+          <PlusCircle className="h-6 w-6" />
+          <span className="text-xs mt-1">Task Preview</span>
+        </Link>
+
+        <Link 
+          to="/files" 
+          className={`flex flex-col items-center p-2 ${isActive('/files') ? 'text-primary' : 'text-muted-foreground'}`}
+        >
+          <FolderOpen className="h-6 w-6" />
+          <span className="text-xs mt-1">Files</span>
+        </Link>
+
+        <Link 
+          to="/profile" 
+          className={`flex flex-col items-center p-2 ${isActive('/profile') ? 'text-primary' : 'text-muted-foreground'}`}
+        >
+          <User className="h-6 w-6" />
+          <span className="text-xs mt-1">Profile</span>
+        </Link>
+      </div>
     </nav>
   );
-};
-
-export default Navigation;
+}

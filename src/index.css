@@ -2,6 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main {
+  flex: 1;
+  padding-bottom: 70px; /* Space for bottom navigation */
+}
+
+/* For file upload */
+.file-drop-area {
+  border: 2px dashed hsl(var(--muted));
+  border-radius: 0.5rem;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.file-drop-area:hover,
+.file-drop-area.dragging {
+  border-color: hsl(var(--primary));
+  background-color: hsl(var(--secondary) / 0.2);
+}
+
 @layer base {
   body {
     padding-bottom: 80px; /* Add padding to the bottom of the body to account for the fixed navbar */
