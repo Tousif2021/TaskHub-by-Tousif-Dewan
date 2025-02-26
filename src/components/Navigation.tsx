@@ -1,74 +1,79 @@
+import { useLocation, Link } from "react-router-dom";
+import { Home, List, Bell, User, FolderDot } from "lucide-react";
 
-import { Link, useLocation } from "react-router-dom";
-import { 
-  HomeIcon, 
-  FolderIcon, 
-  PlusIcon,
-  BellIcon, 
-  UserIcon,
-  ClipboardList
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+interface NavigationProps {
+  showBackButton?: boolean;
+}
 
-const Navigation = () => {
+const NavItem = ({ 
+  icon: Icon, 
+  label, 
+  to,
+  active
+}: { 
+  icon: any; 
+  label: string; 
+  to: string;
+  active: boolean;
+}) => (
+  <Link
+    to={to}
+    className={`flex flex-col items-center gap-1 transition-all duration-300 ${
+      active 
+        ? "text-accent scale-110" 
+        : "text-primary/60 hover:text-accent hover:scale-105"
+    }`}
+  >
+    <div>
+      <Icon className="w-6 h-6" />
+    </div>
+    <span 
+      className="text-xs font-medium"
+    >
+      {label}
+    </span>
+  </Link>
+);
+
+const Navigation = ({ showBackButton = false }: NavigationProps) => {
   const location = useLocation();
-  
-  const isActive = (path) => {
+
+  const isActive = (path: string) => {
     return location.pathname === path;
   };
-  
-  const items = [
-    {
-      icon: HomeIcon,
-      label: "Home",
-      href: "/"
-    },
-    {
-      icon: FolderIcon,
-      label: "Files",
-      href: "/files"
-    },
-    {
-      icon: PlusIcon,
-      label: "Add Task",
-      href: "/add"
-    },
-    {
-      icon: ClipboardList,
-      label: "Tasks",
-      href: "/tasks"
-    },
-    {
-      icon: BellIcon,
-      label: "Reminders",
-      href: "/reminders"
-    },
-    {
-      icon: UserIcon,
-      label: "Profile",
-      href: "/profile"
-    }
-  ];
-  
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t">
-      <div className="flex justify-between items-center px-2">
-        {items.map((item) => (
-          <Link
-            key={item.href}
-            to={item.href}
-            className={cn(
-              "flex flex-1 flex-col items-center py-2 px-1 text-xs",
-              isActive(item.href)
-                ? "text-primary"
-                : "text-muted-foreground hover:text-primary"
-            )}
-          >
-            <item.icon size={20} className="mb-1" />
-            <span>{item.label}</span>
-          </Link>
-        ))}
-      </div>
+    <nav className="fixed bottom-0 left-0 right-0 flex justify-around items-center py-4 px-6 bg-background/80 backdrop-blur-md border-t">
+      <NavItem 
+        icon={Home} 
+        label="Home" 
+        to="/"
+        active={isActive('/')}
+      />
+      <NavItem 
+        icon={FolderDot} 
+        label="Files" 
+        to="/files"
+        active={isActive('/files')}
+      />
+      <NavItem 
+        icon={List} 
+        label="Task Preview" 
+        to="/tasks"
+        active={isActive('/tasks')}
+      />
+      <NavItem 
+        icon={Bell} 
+        label="Reminders" 
+        to="/reminders" 
+        active={isActive('/reminders')} 
+      />
+      <NavItem 
+        icon={User} 
+        label="Profile" 
+        to="/profile" 
+        active={isActive('/profile')} 
+      />
     </nav>
   );
 };

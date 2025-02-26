@@ -1,14 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Camera, Edit, Moon, Sun, LogOut } from "lucide-react";
-import { useTheme } from "@/components/theme-provider";
+import { useTheme } from "@/components/theme-provider"; 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
+
 //App.tsx
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -22,15 +24,7 @@ import NotFound from "./pages/NotFound";
 import "./App.css";
 import Navigation from "./components/Navigation";
 
-// Create a client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 // AnimatedRoutes component to handle page transitions
 const AnimatedRoutes = () => {
@@ -67,15 +61,12 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
-          <Toaster position="top-center" /> {/* Changed Toaster */}
-          <Router>
-            <div className="app">
-              <main className="main">
-                <AnimatedRoutes />
-              </main>
-              <Navigation />
-            </div>
-          </Router>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Navigation />
+            <AnimatedRoutes />
+          </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
