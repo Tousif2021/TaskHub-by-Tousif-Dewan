@@ -17,7 +17,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 import Index from "./pages/Index";
 import Files from "./pages/Files";
 import AddTask from "./pages/AddTask";
-import TaskPreview from "./pages/TaskPreview";
 import Reminders from "./pages/Reminders";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -36,7 +35,6 @@ const AnimatedRoutes = () => {
         <Route path="/" element={<Index />} />
         <Route path="/files" element={<Files />} />
         <Route path="/add" element={<AddTask />} />
-        <Route path="/tasks" element={<TaskPreview />} />
         <Route path="/reminders" element={<Reminders />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="*" element={<NotFound />} />
