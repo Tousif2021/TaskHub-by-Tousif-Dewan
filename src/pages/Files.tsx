@@ -1,7 +1,7 @@
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FileIcon, FolderIcon, ChevronLeft, Clock, Download, Trash2, Eye, Plus, Camera, Upload } from "lucide-react";
+import { FileIcon, FolderIcon, ChevronLeft, Clock, Download, Trash2, Eye } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
@@ -15,47 +15,19 @@ const Files = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [previewFile, setPreviewFile] = useState<{url: string, name: string, type: string} | null>(null);
-  const [isAddFileDialogOpen, setIsAddFileDialogOpen] = useState(false);
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const cameraInputRef = React.useRef<HTMLInputElement>(null);
  
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      toast.success(`Uploaded ${file.name}`);
-      setIsAddFileDialogOpen(false);
-    }
-  };
-
-  const handleCameraCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      toast.success(`Captured image: ${file.name}`);
-      setIsAddFileDialogOpen(false);
-    }
-  };
-
   return (
     <div className="min-h-screen p-6 pb-20">
-      <header className="mb-6 flex items-center justify-between">
-        <div className="flex items-center">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => navigate(-1)}
-            className="mr-2"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-2xl font-bold text-primary">Files</h1>
-        </div>
+      <header className="mb-6 flex items-center">
         <Button 
-          onClick={() => setIsAddFileDialogOpen(true)}
-          className="bg-primary text-white hover:bg-primary/90"
+          variant="ghost" 
+          size="icon" 
+          onClick={() => navigate(-1)}
+          className="mr-2"
         >
-          <Plus className="h-4 w-4 mr-2" />
-          Add File
+          <ChevronLeft className="h-5 w-5" />
         </Button>
+        <h1 className="text-2xl font-bold text-primary">Files</h1>
       </header>
       
       <div className="mb-6">
@@ -116,7 +88,6 @@ const Files = () => {
         </div>
       </div>
       
-      {/* File Preview Dialog */}
       <Dialog open={!!previewFile} onOpenChange={() => setPreviewFile(null)}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
@@ -133,52 +104,6 @@ const Files = () => {
               </Button>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add File Dialog */}
-      <Dialog open={isAddFileDialogOpen} onOpenChange={setIsAddFileDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New File</DialogTitle>
-          </DialogHeader>
-          <div className="grid grid-cols-2 gap-4 py-4">
-            <div 
-              className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg cursor-pointer hover:bg-secondary/20"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Upload className="h-8 w-8 mb-2 text-primary" />
-              <p className="font-medium">Upload File</p>
-              <p className="text-xs text-muted-foreground">PDF, DOC, Images, etc.</p>
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                onChange={handleFileUpload} 
-                className="hidden" 
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xlsx,.txt"
-              />
-            </div>
-            
-            <div 
-              className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg cursor-pointer hover:bg-secondary/20"
-              onClick={() => cameraInputRef.current?.click()}
-            >
-              <Camera className="h-8 w-8 mb-2 text-primary" />
-              <p className="font-medium">Take Picture</p>
-              <p className="text-xs text-muted-foreground">Use camera to capture</p>
-              <input 
-                type="file" 
-                ref={cameraInputRef} 
-                onChange={handleCameraCapture} 
-                className="hidden" 
-                accept="image/*" 
-                capture="environment"
-              />
-            </div>
-          </div>
-          <p className="text-center text-sm text-muted-foreground">
-            Maximum file size: 10MB
-          </p>
         </DialogContent>
       </Dialog>
     </div>
