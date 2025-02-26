@@ -1,153 +1,117 @@
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ChevronLeft } from "lucide-react";
-import { useState } from "react";
-import { format, isAfter, isBefore, isToday, parseISO } from "date-fns";
-import Navigation from "@/components/Navigation";
+import { Calendar, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Task } from "@/types/task";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import Navigation from "@/components/Navigation";
+import { useState } from "react";
+
+// Mock data
+const mockTasks = [
+  {
+    date: "Today",
+    tasks: [
+      {
+        id: "1",
+        title: "Finish Project Proposal",
+        description: "Complete the first draft of the Q3 marketing proposal",
+        dueTime: "10:00 AM",
+        completed: false
+      },
+      {
+        id: "2",
+        title: "Team Check-in",
+        description: "Weekly sync with design and development teams",
+        dueTime: "2:30 PM",
+        completed: true
+      }
+    ]
+  },
+  {
+    date: "Tomorrow",
+    tasks: [
+      {
+        id: "3",
+        title: "Review Analytics",
+        description: "Go through last week's performance metrics",
+        dueTime: "11:00 AM",
+        completed: false
+      }
+    ]
+  },
+  {
+    date: "Next Week",
+    tasks: [
+      {
+        id: "4",
+        title: "Quarterly Planning",
+        description: "Prepare Q4 roadmap and objectives",
+        dueTime: "All day",
+        completed: false
+      },
+      {
+        id: "5",
+        title: "Client Presentation",
+        description: "Present the new feature set to ABC Corp",
+        dueTime: "3:00 PM",
+        completed: false
+      }
+    ]
+  }
+];
 
 const TaskPreview = () => {
   const navigate = useNavigate();
-  const [filter, setFilter] = useState<'all' | 'upcoming' | 'today' | 'past'>('upcoming');
+  const [tasks, setTasks] = useState(mockTasks);
 
-  const { data: tasks = [], isLoading, error } = useQuery({
-    queryKey: ["tasks"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("tasks")
-        .select("*")
-        .order("due_date", { ascending: true });
+  const toggleTaskCompletion = (taskId: string) => {
+    const updatedTasks = tasks.map(dateGroup => ({
+      ...dateGroup,
+      tasks: dateGroup.tasks.map(task => 
+        task.id === taskId ? {...task, completed: !task.completed} : task
+      )
+    }));
 
-      if (error) {
-        throw error;
-      }
-
-      return data.map((task) => ({
-        id: task.id,
-        title: task.title,
-        description: task.description || "",
-        dueDate: task.due_date,
-        dueTime: task.due_time,
-        priority: task.priority,
-        completed: task.completed || false,
-      })) as Task[];
-    },
-  });
-
-  if (isLoading) {
-    return <div className="flex justify-center items-center h-screen">Loading tasks...</div>;
-  }
-
-  if (error) {
-    return <div className="text-red-500 p-4">Error loading tasks: {(error as Error).message}</div>;
-  }
-
-  const today = new Date();
-
-  const filteredTasks = tasks.filter(task => {
-    const taskDate = parseISO(task.dueDate);
-
-    switch(filter) {
-      case 'upcoming':
-        return isAfter(taskDate, today) && !isToday(taskDate);
-      case 'today':
-        return isToday(taskDate);
-      case 'past':
-        return isBefore(taskDate, today) && !isToday(taskDate);
-      default:
-        return true;
-    }
-  });
-
-  // Group tasks by date
-  const groupedTasks = filteredTasks.reduce((groups, task) => {
-    if (!groups[task.dueDate]) {
-      groups[task.dueDate] = [];
-    }
-    groups[task.dueDate].push(task);
-    return groups;
-  }, {} as Record<string, Task[]>);
+    setTasks(updatedTasks);
+  };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <header className="p-4 flex items-center border-b">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => navigate('/')}
-          className="mr-2"
-        >
-          <ChevronLeft className="h-5 w-5" />
+    <div className="min-h-screen p-6 pb-20">
+      <header className="mb-8 flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-primary">
+          Task Preview
+        </h1>
+        <Button onClick={() => navigate('/add-task')} variant="outline">
+          Add New Task
         </Button>
-        <h1 className="text-xl font-bold">Task Preview</h1>
       </header>
 
-      <div className="flex-1 p-4 pb-20">
-        <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
-          <Button 
-            variant={filter === 'all' ? "default" : "outline"} 
-            size="sm"
-            onClick={() => setFilter('all')}
-          >
-            All
-          </Button>
-          <Button 
-            variant={filter === 'upcoming' ? "default" : "outline"} 
-            size="sm"
-            onClick={() => setFilter('upcoming')}
-          >
-            Upcoming
-          </Button>
-          <Button 
-            variant={filter === 'today' ? "default" : "outline"} 
-            size="sm" 
-            onClick={() => setFilter('today')}
-          >
-            Today
-          </Button>
-          <Button 
-            variant={filter === 'past' ? "default" : "outline"} 
-            size="sm"
-            onClick={() => setFilter('past')}
-          >
-            Past
-          </Button>
-        </div>
-
-        {Object.keys(groupedTasks).length === 0 ? (
-          <div className="text-center py-10 text-muted-foreground">
-            No {filter} tasks found
+      <div className="space-y-8">
+        {tasks.length === 0 ? (
+          <div className="text-center py-12">
+            <h3 className="text-lg font-medium text-muted-foreground">No tasks found</h3>
+            <p className="text-sm text-muted-foreground mt-2">Create a new task to get started</p>
+            <Button onClick={() => navigate('/add-task')} className="mt-4">
+              Add Task
+            </Button>
           </div>
         ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-6"
-          >
-            {Object.entries(groupedTasks).map(([date, tasksForDate]) => (
-              <div key={date} className="space-y-2">
-                <h3 className="font-medium text-sm text-muted-foreground">
-                  {format(parseISO(date), "EEEE, MMMM d, yyyy")}
-                </h3>
-                <div className="space-y-2">
-                  {tasksForDate.map((task) => (
-                    <motion.div
+          <div className="space-y-8">
+            {tasks.map((dateGroup, index) => (
+              <div key={index} className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-muted-foreground" />
+                  <h2 className="text-lg font-semibold">{dateGroup.date}</h2>
+                </div>
+
+                <div className="space-y-3">
+                  {dateGroup.tasks.map((task) => (
+                    <div
                       key={task.id}
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ duration: 0.3 }}
                       className={`p-4 rounded-lg border ${
-                        task.priority === "High" 
-                          ? "border-l-4 border-l-red-500" 
-                          : task.priority === "Medium"
-                          ? "border-l-4 border-l-yellow-500"
-                          : "border-l-4 border-l-green-500"
-                      }`}
-                      onClick={() => navigate(`/add?id=${task.id}`)}
+                        task.completed 
+                          ? 'border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/20' 
+                          : 'border-blue-200 dark:border-blue-900/30 bg-blue-50/50 dark:bg-blue-900/10'
+                      } cursor-pointer`}
+                      onClick={() => toggleTaskCompletion(task.id)}
                     >
                       <div className="flex justify-between items-start">
                         <div>
@@ -162,23 +126,18 @@ const TaskPreview = () => {
                           {task.dueTime}
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               </div>
             ))}
-          </motion.div>
+          </div>
         )}
       </div>
 
-      <motion.div
-        initial={{ y: 100 }}
-        animate={{ y: 0 }}
-        transition={{ type: "spring", stiffness: 260, damping: 20 }}
-        className="fixed bottom-0 left-0 right-0 border-t bg-background"
-      >
+      <div className="fixed bottom-0 left-0 right-0 border-t bg-background">
         <Navigation />
-      </motion.div>
+      </div>
     </div>
   );
 };

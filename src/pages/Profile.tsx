@@ -1,88 +1,125 @@
-import Navigation from "@/components/Navigation";
-import { motion } from "framer-motion";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ChevronLeft, Camera, Edit, Moon, Sun, LogOut } from "lucide-react";
+import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
-import { Settings, LogOut, Moon, Sun, UserCircle } from "lucide-react";
-import { ChevronLeft } from "lucide-react"; 
-import { useNavigate } from 'react-router-dom'; 
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Switch } from "@/components/ui/switch";
+import Navigation from "@/components/Navigation";
 
 const Profile = () => {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
+  const [isDarkMode, setIsDarkMode] = useState(theme === "dark");
+  
+  const toggleTheme = () => {
+    const newTheme = theme === "dark" ? "light" : "dark";
+    setTheme(newTheme);
+    setIsDarkMode(newTheme === "dark");
+  };
 
   return (
-    <motion.div 
-      className="min-h-screen p-6 pb-20"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <header className="mb-8 flex items-center border-b"> 
+    <div className="min-h-screen p-6 pb-20">
+      <header className="mb-8 flex items-center">
         <Button 
           variant="ghost" 
           size="icon" 
-          onClick={() => navigate(-1)} 
+          onClick={() => navigate(-1)}
           className="mr-2"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
-        <motion.h1 
-          className="text-2xl font-bold text-primary"
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          My Profile
-        </motion.h1>
+        <h1 className="text-2xl font-bold text-primary">Profile</h1>
       </header>
-
-      <motion.div 
-        className="flex flex-col items-center gap-4 mb-8"
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Avatar className="w-24 h-24 border-4 border-accent/20">
-          <AvatarImage src="https://github.com/shadcn.png" alt="@user" />
-          <AvatarFallback className="bg-accent/10 text-accent-foreground text-xl">
-            <UserCircle className="w-12 h-12" />
-          </AvatarFallback>
-        </Avatar>
-        <h2 className="text-xl font-semibold">John Doe</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400">john.doe@example.com</p>
-      </motion.div>
-
-      <motion.div 
-        className="space-y-4"
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
-          <div className="divide-y divide-gray-200 dark:divide-gray-700">
-            <Button variant="ghost" className="w-full justify-start py-6 h-auto">
-              <Settings className="mr-3 h-5 w-5 text-gray-500" />
-              <span>Settings</span>
-            </Button>
-            <Button variant="ghost" className="w-full justify-start py-6 h-auto">
-              <Moon className="mr-3 h-5 w-5 text-gray-500" />
-              <span>Dark Mode</span>
-            </Button>
-            <Button variant="ghost" className="w-full justify-start py-6 h-auto text-red-500 hover:text-red-600 hover:bg-red-50/50 dark:hover:bg-red-900/20">
-              <LogOut className="mr-3 h-5 w-5" />
-              <span>Logout</span>
-            </Button>
+      
+      <div className="flex flex-col items-center mb-8">
+        <div className="relative">
+          <Avatar className="w-24 h-24 border-4 border-background">
+            <AvatarImage src="https://github.com/shadcn.png" alt="User" />
+            <AvatarFallback>JD</AvatarFallback>
+          </Avatar>
+          <Button 
+            size="icon" 
+            className="absolute bottom-0 right-0 h-8 w-8 rounded-full"
+            variant="outline"
+          >
+            <Camera className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="mt-4 text-center">
+          <h2 className="text-xl font-bold">Jane Doe</h2>
+          <p className="text-sm text-muted-foreground">jane.doe@example.com</p>
+        </div>
+        
+        <Button 
+          variant="outline" 
+          size="sm"
+          className="mt-4"
+        >
+          <Edit className="h-4 w-4 mr-2" />
+          Edit Profile
+        </Button>
+      </div>
+      
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold">Settings</h3>
+          
+          <div className="rounded-lg border bg-card p-4">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center">
+                {isDarkMode ? (
+                  <Moon className="h-5 w-5 mr-3 text-primary" />
+                ) : (
+                  <Sun className="h-5 w-5 mr-3 text-primary" />
+                )}
+                <div>
+                  <p className="font-medium">Dark Mode</p>
+                  <p className="text-sm text-muted-foreground">Toggle dark theme</p>
+                </div>
+              </div>
+              <Switch 
+                checked={isDarkMode} 
+                onCheckedChange={toggleTheme} 
+              />
+            </div>
           </div>
         </div>
-      </motion.div>
-
-      <div>
-        <Button>Task Preview</Button>
-        <Button>File Preview</Button>
+        
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold">Account</h3>
+          
+          <div className="rounded-lg border bg-card p-4">
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm font-medium mb-1">Full Name</p>
+                <p className="text-primary">Jane Doe</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium mb-1">Email</p>
+                <p className="text-primary">jane.doe@example.com</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium mb-1">Joined</p>
+                <p className="text-primary">April 2023</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <Button 
+          variant="destructive" 
+          className="w-full"
+        >
+          <LogOut className="h-4 w-4 mr-2" />
+          Sign Out
+        </Button>
       </div>
-
-      <Navigation showBackButton={false} /> 
-    </motion.div>
+      
+      <Navigation />
+    </div>
   );
 };
 

@@ -1,20 +1,15 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Navigation from "@/components/Navigation";
-import { toast } from "sonner";
-import { motion } from "framer-motion";
 
 interface TaskFormData {
   title: string;
@@ -24,51 +19,40 @@ interface TaskFormData {
 
 const AddTask = () => {
   const [date, setDate] = useState<Date>();
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm<TaskFormData>();
 
   const onSubmit = (data: TaskFormData) => {
-    // Save task logic would go here
+    // Here you would normally send data to your backend/API
     console.log({ ...data, date });
+
+    // Show success message
     toast.success("Task added successfully!");
-    reset();
-    setDate(undefined);
+
+    // Navigate back to tasks overview
+    navigate("/task-preview");
   };
 
   return (
-    <motion.div 
+    <div 
       className="min-h-screen p-6 pb-20"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
     >
-      <header className="mb-8 flex items-center"> {/* Added flex and items-center */}
-        <motion.h1 
-          className="text-2xl font-bold text-primary mr-4"  {/* Added margin-right */}
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5 }}
+      <header className="mb-8">
+        <h1 
+          className="text-2xl font-bold text-primary"
         >
           Add New Task
-        </motion.h1>
-        {/* Back button added here */}
-        <Button variant="ghost" size="icon" onClick={() => {/* Add navigation logic here*/}}> {/* Placeholder navigation */}
-          {/* Add icon here (replace with actual icon import) */}
-          <span>Back</span> {/* Placeholder for icon */}
-        </Button>
+        </h1>
       </header>
 
-      <motion.form 
+      <form 
         onSubmit={handleSubmit(onSubmit)} 
         className="space-y-6"
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
       >
         <div className="space-y-2">
           <label htmlFor="title" className="text-sm font-medium">
@@ -103,10 +87,7 @@ const AddTask = () => {
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className={cn(
-                  "w-full justify-start text-left font-normal bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm",
-                  !date && "text-muted-foreground"
-                )}
+                className="w-full justify-start text-left font-normal bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm"
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {date ? format(date, "PPP") : <span>Pick a date</span>}
@@ -125,14 +106,14 @@ const AddTask = () => {
 
         <Button 
           type="submit" 
-          className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+          className="w-full"
         >
           Add Task
         </Button>
-      </motion.form>
+      </form>
 
-      {/* Navigation removed */}
-    </motion.div>
+      <Navigation />
+    </div>
   );
 };
 

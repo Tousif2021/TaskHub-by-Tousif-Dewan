@@ -1,6 +1,6 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { FileIcon, FolderIcon, ChevronLeft, Clock, Download, Trash2, Eye } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
@@ -15,138 +15,167 @@ const Files = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [previewFile, setPreviewFile] = useState<{url: string, name: string, type: string} | null>(null);
-
+ 
   return (
-    <div className="flex flex-col min-h-screen">
-      <header className="p-4 flex items-center border-b">
+    <div className="min-h-screen p-6 pb-20">
+      <header className="mb-6 flex items-center">
         <Button 
           variant="ghost" 
           size="icon" 
-          onClick={() => navigate('/')}
+          onClick={() => navigate(-1)}
           className="mr-2"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-xl font-bold">Files</h1>
+        <h1 className="text-2xl font-bold text-primary">Files</h1>
       </header>
-
-      <div className="flex-1 p-4 pb-20">
-        {/* Your files content here.  This section needs to be implemented based on your data fetching and display logic.  Example below: */}
-        {/* {files.map(file => (
-          <div key={file.id} className="p-6 rounded-lg border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm animate-fade-up">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-2">
-                <FileIcon className="h-6 w-6" />
-                <div>
-                  <p className="font-medium">{file.name}</p>
-                  <p className="text-sm text-gray-500">{formatDistanceToNow(new Date(file.createdAt))}</p>
-                </div>
-              </div>
-              <div className="flex space-x-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => {
-                        const fileUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${file.path}`;
-                        setPreviewFile({
-                          url: fileUrl,
-                          name: file.name,
-                          type: file.type
-                        });
-                      }}
-                      className="h-8 w-8"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDownloadFile(file)} //handleDownloadFile function needs to be implemented
-                      className="h-8 w-8"
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeleteFile(file.id)} //handleDeleteFile function needs to be implemented
-                      className="h-8 w-8 text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-            </div>
-          </div>
-        ))} */}
-        <div className="p-6 rounded-lg border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm animate-fade-up">
-          No files yet
-        </div>
-
+      
+      <div className="mb-6">
+        <Input
+          placeholder="Search files..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm"
+        />
       </div>
-
-      <motion.div
-        initial={{ y: 100 }}
-        animate={{ y: 0 }}
-        transition={{ type: "spring", stiffness: 260, damping: 20 }}
-        className="fixed bottom-0 left-0 right-0 border-t bg-background"
-      >
-        <Navigation />
-      </motion.div>
-
-      {/* File Preview Dialog */}
-      <Dialog open={!!previewFile} onOpenChange={(open) => !open && setPreviewFile(null)}>
-        <DialogContent className="sm:max-w-md">
+      
+      <div className="mb-8">
+        <h2 className="text-lg font-semibold mb-3">Recent Files</h2>
+        <div className="space-y-2">
+          <FileItem 
+            name="Quarterly Report.pdf"
+            type="pdf"
+            size="2.4 MB"
+            updatedAt={new Date(2023, 5, 15)}
+            onPreview={() => setPreviewFile({
+              url: 'https://example.com/preview.pdf',
+              name: 'Quarterly Report.pdf',
+              type: 'pdf'
+            })}
+          />
+          <FileItem 
+            name="Team Photo.jpg"
+            type="jpg"
+            size="3.1 MB"
+            updatedAt={new Date(2023, 6, 20)}
+            onPreview={() => setPreviewFile({
+              url: 'https://example.com/preview.jpg',
+              name: 'Team Photo.jpg',
+              type: 'jpg'
+            })}
+          />
+          <FileItem 
+            name="Project Timeline.xlsx"
+            type="xlsx"
+            size="1.8 MB"
+            updatedAt={new Date(2023, 7, 5)}
+            onPreview={() => setPreviewFile({
+              url: 'https://example.com/preview.xlsx',
+              name: 'Project Timeline.xlsx',
+              type: 'xlsx'
+            })}
+          />
+        </div>
+      </div>
+      
+      <div>
+        <h2 className="text-lg font-semibold mb-3">Folders</h2>
+        <div className="grid grid-cols-2 gap-3">
+          <FolderItem name="Documents" count={12} />
+          <FolderItem name="Images" count={34} />
+          <FolderItem name="Projects" count={7} />
+          <FolderItem name="Shared with me" count={19} />
+        </div>
+      </div>
+      
+      <Dialog open={!!previewFile} onOpenChange={() => setPreviewFile(null)}>
+        <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>{previewFile?.name}</DialogTitle>
           </DialogHeader>
-
-          <div className="mt-4 max-h-[60vh] overflow-auto">
-            {previewFile && (
-              <div>
-                {previewFile.type.startsWith('image/') ? (
-                  <img 
-                    src={previewFile.url} 
-                    alt={previewFile.name}
-                    className="max-w-full h-auto rounded-md"
-                  />
-                ) : previewFile.type === 'application/pdf' ? (
-                  <iframe 
-                    src={previewFile.url} 
-                    className="w-full h-[50vh]" 
-                    title={previewFile.name}
-                  />
-                ) : previewFile.type.startsWith('video/') ? (
-                  <video 
-                    src={previewFile.url} 
-                    controls 
-                    className="max-w-full"
-                  />
-                ) : previewFile.type.startsWith('audio/') ? (
-                  <audio 
-                    src={previewFile.url} 
-                    controls 
-                    className="w-full"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-10">
-                    <FileIcon className="h-16 w-16 text-muted-foreground mb-4" />
-                    <p className="text-center text-muted-foreground mb-4">
-                      Preview not available for this file type
-                    </p>
-                    <Button asChild>
-                      <a href={previewFile.url} target="_blank" rel="noopener noreferrer">
-                        Open File
-                      </a>
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
+          <div className="aspect-video bg-secondary/30 rounded-md flex items-center justify-center">
+            {/* This would be replaced with an actual preview component */}
+            <div className="text-center p-8">
+              <FileIcon className="mx-auto h-12 w-12 mb-3 text-muted-foreground" />
+              <p>Preview not available</p>
+              <Button variant="outline" className="mt-4" onClick={() => toast.success("File download started")}>
+                <Download className="h-4 w-4 mr-2" />
+                Download
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
+      
+      <Navigation />
     </div>
   );
 };
+
+const FileItem = ({ 
+  name, 
+  type, 
+  size, 
+  updatedAt, 
+  onPreview
+}: { 
+  name: string; 
+  type: string;
+  size: string;
+  updatedAt: Date;
+  onPreview: () => void;
+}) => {
+  const getIconColor = () => {
+    switch(type) {
+      case 'pdf': return 'text-red-500';
+      case 'jpg':
+      case 'png': return 'text-blue-500';
+      case 'xlsx': return 'text-green-500';
+      default: return 'text-gray-500';
+    }
+  };
+
+  return (
+    <div className="flex items-center p-3 rounded-lg bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-800">
+      <div className={`mr-3 ${getIconColor()}`}>
+        <FileIcon className="h-5 w-5" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-medium truncate">{name}</h3>
+        <div className="flex text-xs text-muted-foreground">
+          <span>{size}</span>
+          <span className="mx-1">•</span>
+          <span className="flex items-center">
+            <Clock className="h-3 w-3 mr-1" />
+            {formatDistanceToNow(updatedAt, { addSuffix: true })}
+          </span>
+        </div>
+      </div>
+      <div className="flex gap-1">
+        <Button variant="ghost" size="icon" onClick={onPreview}>
+          <Eye className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon" onClick={() => toast.success(`Downloaded ${name}`)}>
+          <Download className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon" onClick={() => toast.success(`Deleted ${name}`)}>
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+const FolderItem = ({ name, count }: { name: string; count: number }) => (
+  <div className="p-4 rounded-lg bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-800 cursor-pointer">
+    <div className="flex items-center">
+      <FolderIcon className="h-8 w-8 text-amber-500 mr-3" />
+      <div>
+        <h3 className="font-medium">{name}</h3>
+        <p className="text-xs text-muted-foreground">{count} items</p>
+      </div>
+    </div>
+  </div>
+);
 
 export default Files;
