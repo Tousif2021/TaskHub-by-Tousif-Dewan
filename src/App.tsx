@@ -22,6 +22,7 @@ import Reminders from "./pages/Reminders";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import "./App.css";
+import Navigation from "./components/Navigation";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light">
+        <Navigation/>
         <TooltipProvider>
           <Toaster />
           <Sonner />

@@ -30,8 +30,8 @@ const Navigation = ({ showBackButton = false }: NavigationProps) => {
       <NavItem 
         icon={Plus} 
         label="Tasks" 
-        to="/task-preview" 
-        active={isActive('/task-preview') || isActive('/add-task')} 
+        to="/tasks" 
+        active={isActive('/tasks') || isActive('/add')} 
       />
       <NavItem 
         icon={Bell} 

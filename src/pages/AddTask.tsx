@@ -1,99 +1,111 @@
+
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { ChevronLeft, CalendarIcon } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import Navigation from "@/components/Navigation";
-
-interface TaskFormData {
-  title: string;
-  description: string;
-  date?: Date;
-}
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const AddTask = () => {
-  const [date, setDate] = useState<Date>();
   const navigate = useNavigate();
+  const [title, setTitle] = useState("");
+  const [details, setDetails] = useState("");
+  const [priority, setPriority] = useState("medium");
+  const [date, setDate] = useState<Date | undefined>(new Date());
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<TaskFormData>();
-
-  const onSubmit = (data: TaskFormData) => {
-    // Here you would normally send data to your backend/API
-    console.log({ ...data, date });
-
-    // Show success message
-    toast.success("Task added successfully!");
-
-    // Navigate back to tasks overview
-    navigate("/task-preview");
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Here you would add the task to your state/database
+    console.log({ title, details, priority, date });
+    // Navigate back to tasks list
+    navigate("/tasks");
   };
 
   return (
-    <div 
-      className="min-h-screen p-6 pb-20"
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.2 }}
+      className="container mx-auto px-4 py-6"
     >
-      <header className="mb-8">
-        <h1 
-          className="text-2xl font-bold text-primary"
-        >
-          Add New Task
-        </h1>
-      </header>
+      <div className="mb-6 flex items-center">
+        <Link to="/">
+          <Button variant="ghost" size="icon" className="mr-2">
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+        </Link>
+        <h1 className="text-2xl font-bold">Add New Task</h1>
+      </div>
 
-      <form 
-        onSubmit={handleSubmit(onSubmit)} 
-        className="space-y-6"
-      >
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <label htmlFor="title" className="text-sm font-medium">
-            Task Title
-          </label>
+          <Label htmlFor="title">Task Title</Label>
           <Input
             id="title"
             placeholder="Enter task title"
-            {...register("title", { required: "Title is required" })}
-            className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
           />
-          {errors.title && (
-            <p className="text-sm text-red-500">{errors.title.message}</p>
-          )}
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="description" className="text-sm font-medium">
-            Description
-          </label>
+          <Label htmlFor="details">Task Details</Label>
           <Textarea
-            id="description"
-            placeholder="Enter task description"
-            {...register("description")}
-            className="min-h-24 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm"
+            id="details"
+            placeholder="Enter task details"
+            value={details}
+            onChange={(e) => setDetails(e.target.value)}
+            className="min-h-[100px]"
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Due Date</label>
+          <Label>Priority Level</Label>
+          <RadioGroup value={priority} onValueChange={setPriority} className="flex space-x-2">
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="low" id="low" />
+              <Label htmlFor="low" className="text-green-600">Low</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="medium" id="medium" />
+              <Label htmlFor="medium" className="text-yellow-600">Medium</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="high" id="high" />
+              <Label htmlFor="high" className="text-red-600">High</Label>
+            </div>
+          </RadioGroup>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Due Date</Label>
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full justify-start text-left font-normal bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !date && "text-muted-foreground"
+                )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {date ? format(date, "PPP") : <span>Pick a date</span>}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
+            <PopoverContent className="w-auto p-0">
               <Calendar
                 mode="single"
                 selected={date}
@@ -104,16 +116,9 @@ const AddTask = () => {
           </Popover>
         </div>
 
-        <Button 
-          type="submit" 
-          className="w-full"
-        >
-          Add Task
-        </Button>
+        <Button type="submit" className="w-full">Create Task</Button>
       </form>
-
-      <Navigation />
-    </div>
+    </motion.div>
   );
 };
 

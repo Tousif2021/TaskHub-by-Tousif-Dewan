@@ -84,8 +84,6 @@ const Profile = () => {
           Sign Out
         </Button>
       </div>
-
-      <Navigation />
     </div>
   );
 };

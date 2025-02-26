@@ -55,10 +55,17 @@ const Index = () => {
         />
 
         <MenuItem 
-          to="/task-preview"
+          to="/tasks"
           icon={Plus}
-          title="Task Preview"
+          title="Tasks"
           description="Preview your added tasks"
+          color="bg-green-500/10 text-green-600 dark:text-green-400"
+        />
+        <MenuItem 
+          to="/add"
+          icon={Plus}
+          title="Add Task"
+          description="Create a new task with details"
           color="bg-green-500/10 text-green-600 dark:text-green-400"
         />
 
@@ -79,6 +86,7 @@ const Index = () => {
         />
       </div>
 
+      {/* Navigation moved outside the main content */}
       <Navigation />
     </div>
   );
