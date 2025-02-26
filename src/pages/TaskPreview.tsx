@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
@@ -13,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 const TaskPreview = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'today' | 'past'>('upcoming');
-  
+
   const { data: tasks = [], isLoading, error } = useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
@@ -21,11 +20,11 @@ const TaskPreview = () => {
         .from("tasks")
         .select("*")
         .order("due_date", { ascending: true });
-      
+
       if (error) {
         throw error;
       }
-      
+
       return data.map((task) => ({
         id: task.id,
         title: task.title,
@@ -37,20 +36,20 @@ const TaskPreview = () => {
       })) as Task[];
     },
   });
-  
+
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen">Loading tasks...</div>;
   }
-  
+
   if (error) {
     return <div className="text-red-500 p-4">Error loading tasks: {(error as Error).message}</div>;
   }
-  
+
   const today = new Date();
-  
+
   const filteredTasks = tasks.filter(task => {
     const taskDate = parseISO(task.dueDate);
-    
+
     switch(filter) {
       case 'upcoming':
         return isAfter(taskDate, today) && !isToday(taskDate);
@@ -62,7 +61,7 @@ const TaskPreview = () => {
         return true;
     }
   });
-  
+
   // Group tasks by date
   const groupedTasks = filteredTasks.reduce((groups, task) => {
     if (!groups[task.dueDate]) {
@@ -71,7 +70,7 @@ const TaskPreview = () => {
     groups[task.dueDate].push(task);
     return groups;
   }, {} as Record<string, Task[]>);
-  
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="p-4 flex items-center border-b">
@@ -85,7 +84,7 @@ const TaskPreview = () => {
         </Button>
         <h1 className="text-xl font-bold">Task Preview</h1>
       </header>
-      
+
       <div className="flex-1 p-4 pb-20">
         <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
           <Button 
@@ -117,7 +116,7 @@ const TaskPreview = () => {
             Past
           </Button>
         </div>
-        
+
         {Object.keys(groupedTasks).length === 0 ? (
           <div className="text-center py-10 text-muted-foreground">
             No {filter} tasks found
@@ -171,7 +170,7 @@ const TaskPreview = () => {
           </motion.div>
         )}
       </div>
-      
+
       <motion.div
         initial={{ y: 100 }}
         animate={{ y: 0 }}

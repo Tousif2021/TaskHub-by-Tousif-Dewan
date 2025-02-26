@@ -3,13 +3,11 @@ import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Settings, LogOut, Moon, Sun, UserCircle } from "lucide-react";
-import { ChevronLeft } from "lucide-react"; // Added import for ChevronLeft
-import { useNavigate } from 'react-router-dom'; // Added import for useNavigate
-
-import { motion } from "framer-motion";
+import { ChevronLeft } from "lucide-react"; 
+import { useNavigate } from 'react-router-dom'; 
 
 const Profile = () => {
-  const navigate = useNavigate(); // Added useNavigate hook
+  const navigate = useNavigate(); 
 
   return (
     <motion.div 
@@ -19,7 +17,7 @@ const Profile = () => {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <header className="mb-8 flex items-center border-b"> {/* Modified header to include back button */}
+      <header className="mb-8 flex items-center border-b"> 
         <Button 
           variant="ghost" 
           size="icon" 
@@ -78,15 +76,12 @@ const Profile = () => {
         </div>
       </motion.div>
 
-      {/* Placeholder for Task Preview and File Preview -  Requires significant additional code */}
       <div>
-        {/* Task Preview component would go here */}
         <Button>Task Preview</Button>
-        {/* File Preview component would go here */}
         <Button>File Preview</Button>
       </div>
 
-      <Navigation showBackButton={false} /> {/* Removed showBackButton from Navigation */}
+      <Navigation showBackButton={false} /> 
     </motion.div>
   );
 };

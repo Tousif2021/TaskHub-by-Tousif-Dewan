@@ -16,8 +16,6 @@ import Navigation from "@/components/Navigation";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 
-import { motion } from "framer-motion";
-
 interface TaskFormData {
   title: string;
   description: string;
