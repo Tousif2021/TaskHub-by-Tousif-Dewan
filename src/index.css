@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 @layer base {
+  body {
+    padding-bottom: 80px; /* Add padding to the bottom of the body to account for the fixed navbar */
+  }
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;

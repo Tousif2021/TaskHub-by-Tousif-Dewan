@@ -1,53 +1,9 @@
-
 import { useLocation, Link } from "react-router-dom";
-import { Home, Plus, Bell, User, FolderDot } from "lucide-react";
+import { Home, List, Bell, User, FolderDot } from "lucide-react";
 
 interface NavigationProps {
   showBackButton?: boolean;
 }
-
-const Navigation = ({ showBackButton = false }: NavigationProps) => {
-  const location = useLocation();
-  
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
-
-  return (
-    <nav className="flex justify-around items-center py-4 px-6 bg-background/80 backdrop-blur-md">
-      <NavItem 
-        icon={Home} 
-        label="Home" 
-        to="/" 
-        active={isActive('/')} 
-      />
-      <NavItem 
-        icon={FolderDot} 
-        label="Files" 
-        to="/files" 
-        active={isActive('/files')} 
-      />
-      <NavItem 
-        icon={Plus} 
-        label="Tasks" 
-        to="/tasks" 
-        active={isActive('/tasks') || isActive('/add')} 
-      />
-      <NavItem 
-        icon={Bell} 
-        label="Reminders" 
-        to="/reminders" 
-        active={isActive('/reminders')} 
-      />
-      <NavItem 
-        icon={User} 
-        label="Profile" 
-        to="/profile" 
-        active={isActive('/profile')} 
-      />
-    </nav>
-  );
-};
 
 const NavItem = ({ 
   icon: Icon, 
@@ -78,5 +34,48 @@ const NavItem = ({
     </span>
   </Link>
 );
+
+const Navigation = ({ showBackButton = false }: NavigationProps) => {
+  const location = useLocation();
+
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 flex justify-around items-center py-4 px-6 bg-background/80 backdrop-blur-md border-t">
+      <NavItem 
+        icon={Home} 
+        label="Home" 
+        to="/"
+        active={isActive('/')}
+      />
+      <NavItem 
+        icon={FolderDot} 
+        label="Files" 
+        to="/files"
+        active={isActive('/files')}
+      />
+      <NavItem 
+        icon={List} 
+        label="Task Preview" 
+        to="/tasks"
+        active={isActive('/tasks')}
+      />
+      <NavItem 
+        icon={Bell} 
+        label="Reminders" 
+        to="/reminders" 
+        active={isActive('/reminders')} 
+      />
+      <NavItem 
+        icon={User} 
+        label="Profile" 
+        to="/profile" 
+        active={isActive('/profile')} 
+      />
+    </nav>
+  );
+};
 
 export default Navigation;
