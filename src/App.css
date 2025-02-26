@@ -1,114 +1,187 @@
 
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  text-align: center;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary-color: #4f46e5;
+  --primary-hover: #4338ca;
+  --secondary-color: #06b6d4;
+  --accent-color: #8b5cf6;
+  --background: #f9fafb;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: rgba(79, 70, 229, 0.3);
+  --radius: 0.5rem;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
-/* New custom styles */
 body {
-  background-image: radial-gradient(
-    circle at top right,
-    rgba(100, 116, 139, 0.1) 0%,
-    rgba(15, 23, 42, 0.01) 50%
-  );
-  background-attachment: fixed;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin: 0;
+  padding: 0;
 }
 
-/* Dark mode styling */
-.dark body {
-  background-image: radial-gradient(
-    circle at top right,
-    rgba(30, 41, 59, 0.2) 0%,
-    rgba(15, 23, 42, 0.1) 50%
-  );
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  background-color: var(--background);
 }
 
-/* Page transition animations */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+/* Smooth page transitions */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(10px);
 }
 
-.page-transition {
-  animation: fadeIn 0.3s ease-out;
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
 }
 
-/* Task item animations */
-@keyframes slideUp {
-  from { 
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to { 
-    opacity: 1;
-    transform: translateY(0);
-  }
+.page-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.task-item {
-  animation: slideUp 0.3s ease-out;
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 300ms, transform 300ms;
 }
 
-/* Custom scrollbar for better UX */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* Navbar styling */
+.navbar {
+  background-color: var(--card);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  z-index: 50;
+  display: flex;
+  justify-content: space-around;
+  padding: 0.75rem 0;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+.navbar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--foreground);
+  opacity: 0.7;
+  transition: all 0.2s ease;
 }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(100, 116, 139, 0.2);
-  border-radius: 4px;
+.navbar-item.active {
+  color: var(--primary-color);
+  opacity: 1;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 0.4);
+.navbar-item:hover {
+  opacity: 0.9;
 }
 
-.dark ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.2);
+.back-button {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 20;
 }
 
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.4);
+.back-button:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* Page container */
+.page-container {
+  padding: 5rem 1rem 5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.page-header {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--foreground);
+}
+
+/* Form elements */
+.form-control {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--input);
+  border-radius: var(--radius);
+  transition: all 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Card styling */
+.card {
+  background-color: var(--card);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }

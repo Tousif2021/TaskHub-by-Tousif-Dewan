@@ -5,12 +5,14 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 import Index from "./pages/Index";
 import Files from "./pages/Files";
 import AddTask from "./pages/AddTask";
 import Reminders from "./pages/Reminders";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import "./App.css";
 
 const queryClient = new QueryClient();
 
@@ -32,16 +34,29 @@ const AnimatedRoutes = () => {
   );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AnimatedRoutes />
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    // Simple initialization to ensure app loads properly
+    setIsLoaded(true);
+  }, []);
+
+  if (!isLoaded) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AnimatedRoutes />
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
