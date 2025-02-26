@@ -38,7 +38,7 @@ export const useTheme = () => {
 //pages/Profile.tsx
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Camera, Edit, Moon, Sun, LogOut } from "lucide-react";
-import { useTheme } from "@/components/theme-provider"; //Corrected import path.
+import { useTheme } from "@/components/theme-provider"; 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 // ... rest of Profile.tsx
@@ -52,6 +52,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import { ThemeProvider } from "@/components/theme-provider";
 import Index from "./pages/Index";
 import Files from "./pages/Files";
 import AddTask from "./pages/AddTask";
@@ -60,7 +61,6 @@ import Reminders from "./pages/Reminders";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import "./App.css";
-import { ThemeProvider } from "@/components/theme-provider";
 
 const queryClient = new QueryClient();
 
@@ -97,15 +97,15 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <ThemeProvider defaultTheme="light"> {/* Added ThemeProvider */}
+      <ThemeProvider defaultTheme="light">
+        <TooltipProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
             <AnimatedRoutes />
           </BrowserRouter>
-        </ThemeProvider>
-      </TooltipProvider>
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };

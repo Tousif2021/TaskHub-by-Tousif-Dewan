@@ -1,4 +1,52 @@
+//components/theme-provider.tsx
+import { createContext, useState, useContext } from 'react';
 
+export const ThemeContext = createContext({
+  theme: 'light',
+  setTheme: () => {},
+});
+
+export const ThemeProvider = ({ children }) => {
+  const [theme, setTheme] = useState('light');
+
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+};
+
+
+//App.tsx (Assumed structure, needs to be adapted to the actual App.tsx)
+import { ThemeProvider } from "@/components/theme-provider";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Profile from './Profile';
+
+
+function App() {
+  return (
+      <Router>
+        <ThemeProvider>
+          <Routes>
+            <Route path="/profile" element={<Profile />} />
+            {/* Add other routes here */}
+          </Routes>
+        </ThemeProvider>
+      </Router>
+  );
+}
+
+export default App;
+
+//Profile.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Camera, Edit, Moon, Sun, LogOut } from "lucide-react";
@@ -12,7 +60,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const [isDarkMode, setIsDarkMode] = useState(theme === "dark");
-  
+
   const toggleTheme = () => {
     const newTheme = theme === "dark" ? "light" : "dark";
     setTheme(newTheme);
@@ -32,7 +80,7 @@ const Profile = () => {
         </Button>
         <h1 className="text-2xl font-bold text-primary">Profile</h1>
       </header>
-      
+
       <div className="flex flex-col items-center mb-8">
         <div className="relative">
           <Avatar className="w-24 h-24 border-4 border-background">
@@ -47,12 +95,12 @@ const Profile = () => {
             <Camera className="h-4 w-4" />
           </Button>
         </div>
-        
+
         <div className="mt-4 text-center">
           <h2 className="text-xl font-bold">Jane Doe</h2>
           <p className="text-sm text-muted-foreground">jane.doe@example.com</p>
         </div>
-        
+
         <Button 
           variant="outline" 
           size="sm"
@@ -62,11 +110,11 @@ const Profile = () => {
           Edit Profile
         </Button>
       </div>
-      
+
       <div className="space-y-6">
         <div className="space-y-2">
           <h3 className="text-lg font-semibold">Settings</h3>
-          
+
           <div className="rounded-lg border bg-card p-4">
             <div className="flex justify-between items-center">
               <div className="flex items-center">
@@ -87,10 +135,10 @@ const Profile = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="space-y-2">
           <h3 className="text-lg font-semibold">Account</h3>
-          
+
           <div className="rounded-lg border bg-card p-4">
             <div className="space-y-4">
               <div>
@@ -108,7 +156,7 @@ const Profile = () => {
             </div>
           </div>
         </div>
-        
+
         <Button 
           variant="destructive" 
           className="w-full"
@@ -117,7 +165,7 @@ const Profile = () => {
           Sign Out
         </Button>
       </div>
-      
+
       <Navigation />
     </div>
   );
