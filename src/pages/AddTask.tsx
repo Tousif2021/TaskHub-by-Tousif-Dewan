@@ -47,15 +47,20 @@ const AddTask = () => {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <header className="mb-8">
+      <header className="mb-8 flex items-center"> {/* Added flex and items-center */}
         <motion.h1 
-          className="text-2xl font-bold text-primary"
+          className="text-2xl font-bold text-primary mr-4"  {/* Added margin-right */}
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
           Add New Task
         </motion.h1>
+        {/* Back button added here */}
+        <Button variant="ghost" size="icon" onClick={() => {/* Add navigation logic here*/}}> {/* Placeholder navigation */}
+          {/* Add icon here (replace with actual icon import) */}
+          <span>Back</span> {/* Placeholder for icon */}
+        </Button>
       </header>
 
       <motion.form 
@@ -126,7 +131,7 @@ const AddTask = () => {
         </Button>
       </motion.form>
 
-      <Navigation showBackButton={true} />
+      {/* Navigation removed */}
     </motion.div>
   );
 };

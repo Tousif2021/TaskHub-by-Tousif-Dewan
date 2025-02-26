@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -15,7 +14,7 @@ const Index = () => {
       }
     }
   };
-  
+
   const item = {
     hidden: { y: 20, opacity: 0 },
     show: { y: 0, opacity: 1, transition: { duration: 0.5 } }
@@ -28,7 +27,7 @@ const Index = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      <header className="mb-8">
+      <header className="mb-8 flex justify-between items-center"> {/* Added flex and justify-between for back button */}
         <motion.h1 
           className="text-2xl font-bold text-primary"
           initial={{ y: -20, opacity: 0 }}
@@ -37,14 +36,9 @@ const Index = () => {
         >
           Task Manager
         </motion.h1>
-        <motion.p
-          className="text-muted-foreground mt-2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-        >
-          Organize your tasks efficiently
-        </motion.p>
+        <Link to="/previous"> {/* Assumed route for back button */}
+          <Button variant="ghost">Back</Button>
+        </Link> {/* Added back button */}
       </header>
 
       <motion.div
@@ -61,16 +55,16 @@ const Index = () => {
           color="bg-blue-500/10 text-blue-600 dark:text-blue-400"
           variants={item}
         />
-        
+
         <MenuItem 
-          to="/add"
+          to="/task-preview" {/* Changed route */}
           icon={Plus}
-          title="Add Task"
-          description="Create a new task"
+          title="Task Preview" {/* Changed title */}
+          description="Preview your added tasks" {/* Changed description */}
           color="bg-green-500/10 text-green-600 dark:text-green-400"
           variants={item}
         />
-        
+
         <MenuItem 
           to="/reminders"
           icon={Bell}
@@ -79,7 +73,7 @@ const Index = () => {
           color="bg-amber-500/10 text-amber-600 dark:text-amber-400"
           variants={item}
         />
-        
+
         <MenuItem 
           to="/profile"
           icon={User}

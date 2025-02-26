@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import { format, isAfter, isBefore, isToday, addDays } from "date-fns";
@@ -89,14 +88,15 @@ const Reminders = () => {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <header className="mb-8">
+      <header className="mb-8 border-b pb-4"> {/* Added border-b for visual separation */}
         <motion.h1 
-          className="text-2xl font-bold text-primary"
+          className="text-2xl font-bold text-primary flex items-center"
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          Reminders
+          <button onClick={() => {/* Add navigation logic here */}}>Back</button> {/* Added back button */}
+          <span className="ml-2">Reminders</span>
         </motion.h1>
       </header>
 
@@ -125,7 +125,7 @@ const Reminders = () => {
           <motion.div className="space-y-4">
             {filteredReminders.map((reminder, index) => {
               const status = getReminderStatus(reminder.date);
-              
+
               return (
                 <motion.div
                   key={reminder.id}
@@ -194,7 +194,7 @@ const Reminders = () => {
         )}
       </AnimatePresence>
 
-      <Navigation showBackButton={true} />
+      <Navigation showBackButton={false} /> {/* Removed showBackButton from Navigation */}
     </motion.div>
   );
 };
