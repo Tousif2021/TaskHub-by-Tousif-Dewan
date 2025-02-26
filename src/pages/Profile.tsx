@@ -1,53 +1,3 @@
-//components/theme-provider.tsx
-import { createContext, useState, useContext } from 'react';
-
-export const ThemeContext = createContext({
-  theme: 'light',
-  setTheme: () => {},
-});
-
-export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState('light');
-
-  return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
-};
-
-export const useTheme = () => {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
-};
-
-
-//App.tsx (Assumed structure, needs to be adapted to the actual App.tsx)
-import { ThemeProvider } from "@/components/theme-provider";
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Profile from './Profile';
-
-
-function App() {
-  return (
-      <Router>
-        <ThemeProvider>
-          <Routes>
-            <Route path="/profile" element={<Profile />} />
-            {/* Add other routes here */}
-          </Routes>
-        </ThemeProvider>
-      </Router>
-  );
-}
-
-export default App;
-
-//Profile.tsx
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Camera, Edit, Moon, Sun, LogOut } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
@@ -58,86 +8,55 @@ import Navigation from "@/components/Navigation";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { theme, setTheme } = useTheme();
-  const [isDarkMode, setIsDarkMode] = useState(theme === "dark");
-
-  const toggleTheme = () => {
-    const newTheme = theme === "dark" ? "light" : "dark";
-    setTheme(newTheme);
-    setIsDarkMode(newTheme === "dark");
-  };
+  const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen p-6 pb-20">
-      <header className="mb-8 flex items-center">
+    <div className="min-h-screen pb-20">
+      <div className="p-4 space-y-6">
         <Button 
           variant="ghost" 
           size="icon" 
           onClick={() => navigate(-1)}
-          className="mr-2"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-2xl font-bold text-primary">Profile</h1>
-      </header>
 
-      <div className="flex flex-col items-center mb-8">
-        <div className="relative">
-          <Avatar className="w-24 h-24 border-4 border-background">
-            <AvatarImage src="https://github.com/shadcn.png" alt="User" />
-            <AvatarFallback>JD</AvatarFallback>
-          </Avatar>
-          <Button 
-            size="icon" 
-            className="absolute bottom-0 right-0 h-8 w-8 rounded-full"
-            variant="outline"
-          >
-            <Camera className="h-4 w-4" />
+        <div className="flex flex-col items-center space-y-3 mb-8">
+          <div className="relative">
+            <Avatar className="h-24 w-24">
+              <AvatarImage src="https://github.com/shadcn.png" alt="Profile picture" />
+              <AvatarFallback>JD</AvatarFallback>
+            </Avatar>
+            <Button 
+              variant="secondary" 
+              size="icon" 
+              className="absolute bottom-0 right-0 rounded-full h-8 w-8"
+            >
+              <Camera className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="text-center">
+            <h1 className="text-xl font-bold">Jane Doe</h1>
+            <p className="text-sm text-muted-foreground">Product Designer</p>
+          </div>
+          <Button variant="outline" size="sm" className="gap-1">
+            <Edit className="h-4 w-4" />
+            Edit Profile
           </Button>
         </div>
 
-        <div className="mt-4 text-center">
-          <h2 className="text-xl font-bold">Jane Doe</h2>
-          <p className="text-sm text-muted-foreground">jane.doe@example.com</p>
-        </div>
-
-        <Button 
-          variant="outline" 
-          size="sm"
-          className="mt-4"
-        >
-          <Edit className="h-4 w-4 mr-2" />
-          Edit Profile
-        </Button>
-      </div>
-
-      <div className="space-y-6">
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold">Settings</h3>
-
-          <div className="rounded-lg border bg-card p-4">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                {isDarkMode ? (
-                  <Moon className="h-5 w-5 mr-3 text-primary" />
-                ) : (
-                  <Sun className="h-5 w-5 mr-3 text-primary" />
-                )}
-                <div>
-                  <p className="font-medium">Dark Mode</p>
-                  <p className="text-sm text-muted-foreground">Toggle dark theme</p>
-                </div>
-              </div>
-              <Switch 
-                checked={isDarkMode} 
-                onCheckedChange={toggleTheme} 
-              />
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {theme === 'dark' ? (
+                <Moon className="h-5 w-5" />
+              ) : (
+                <Sun className="h-5 w-5" />
+              )}
+              <span>Dark Mode</span>
             </div>
+            <Switch checked={theme === 'dark'} onCheckedChange={toggleTheme} />
           </div>
-        </div>
-
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold">Account</h3>
 
           <div className="rounded-lg border bg-card p-4">
             <div className="space-y-4">
