@@ -20,7 +20,17 @@ const TaskList = () => {
         .order("due_time", { ascending: true });
 
       if (error) throw error;
-      return data as Task[];
+      
+      // Map the database response to our Task interface
+      return (data || []).map((item) => ({
+        id: item.id,
+        title: item.title,
+        description: item.description || "",
+        dueDate: item.due_date,
+        dueTime: item.due_time,
+        priority: item.priority as "Low" | "Medium" | "High",
+        completed: item.completed || false,
+      }));
     },
   });
 
