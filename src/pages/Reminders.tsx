@@ -52,6 +52,8 @@ const mockReminders: Reminder[] = [
   },
 ];
 
+import { motion } from "framer-motion";
+
 const Reminders = () => {
   const [reminders, setReminders] = useState<Reminder[]>(mockReminders);
   const [filter, setFilter] = useState<"all" | "today" | "upcoming" | "overdue">("all");

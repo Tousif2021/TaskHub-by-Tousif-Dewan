@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 
+import { motion } from "framer-motion";
+
 const Files = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");

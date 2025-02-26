@@ -22,6 +22,8 @@ interface TaskFormData {
   date?: Date;
 }
 
+import { motion } from "framer-motion";
+
 const AddTask = () => {
   const [date, setDate] = useState<Date>();
   const {

@@ -6,6 +6,8 @@ import { Settings, LogOut, Moon, Sun, UserCircle } from "lucide-react";
 import { ChevronLeft } from "lucide-react"; // Added import for ChevronLeft
 import { useNavigate } from 'react-router-dom'; // Added import for useNavigate
 
+import { motion } from "framer-motion";
+
 const Profile = () => {
   const navigate = useNavigate(); // Added useNavigate hook
 
