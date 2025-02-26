@@ -14,3 +14,18 @@ externalPort = 80
 [[ports]]
 localPort = 8081
 externalPort = 8081
+
+[[ports]]
+localPort = 8082
+externalPort = 3000
+
+[workflows]
+runButton = "Run"
+
+[[workflows.workflow]]
+name = "Run"
+author = 40044919
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
