@@ -181,7 +181,8 @@ const Reminders = () => {
         )}
       </div>
 
-      </div>
+      <Navigation />
+    </div>
   );
 };
 

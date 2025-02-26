@@ -1,3 +1,4 @@
+
 import { useLocation, Link } from "react-router-dom";
 import { Home, Plus, Bell, User, FolderDot } from "lucide-react";
 
@@ -7,13 +8,13 @@ interface NavigationProps {
 
 const Navigation = ({ showBackButton = false }: NavigationProps) => {
   const location = useLocation();
-
+  
   const isActive = (path: string) => {
     return location.pathname === path;
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-10 bg-background/80 backdrop-blur-md w-full py-4 px-6"> {/* Modified class for bottom positioning */}
+    <nav className="flex justify-around items-center py-4 px-6 bg-background/80 backdrop-blur-md">
       <NavItem 
         icon={Home} 
         label="Home" 
