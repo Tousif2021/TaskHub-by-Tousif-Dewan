@@ -1,4 +1,4 @@
-import { useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
@@ -7,10 +7,13 @@ import {
   ChevronRight,
   CheckCircle,
   CheckSquare,
-  CalendarClock
+  CalendarClock,
+  Calendar,
+  Clock,
+  Plus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -18,8 +21,31 @@ import { cn } from "@/lib/utils";
 import { format, isToday, isBefore, addDays } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, Clock } from "lucide-react";
 
+// MenuItem component
+const MenuItem = ({ to, icon: Icon, title, description, color }) => {
+  const navigate = useNavigate();
+  
+  return (
+    <Card 
+      className="group relative overflow-hidden transition-all hover:shadow-md cursor-pointer"
+      onClick={() => navigate(to)}
+    >
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between">
+          <div className={`rounded-full p-2 ${color}`}>
+            <Icon className="h-4 w-4" />
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
+        </div>
+        <div className="mt-3">
+          <h3 className="font-semibold">{title}</h3>
+          <p className="text-sm text-muted-foreground">{description}</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 export default function Index() {
   const navigate = useNavigate();
@@ -62,13 +88,19 @@ export default function Index() {
     },
   });
 
-  const today = new Date();
-  const upcomingTasks = tasks
-    .filter(task => !task.completed)
-    .filter(task => {
-      const taskDate = new Date(task.dueDate);
-      return isToday(taskDate) || 
-        (isBefore(today, taskDate) && isBefore(taskDate, addDays(today, 7)));
+  // Get today's tasks
+  const todayTasks = tasks.filter(task => {
+    const taskDate = new Date(task.dueDate);
+    return isToday(taskDate);
+  }).slice(0, 3);
+
+  // Get upcoming tasks
+  const upcomingTasks = tasks.filter(task => {
+    const taskDate = new Date(task.dueDate);
+    const today = new Date();
+    return (
+      !isToday(taskDate) && 
+      (isBefore(today, taskDate) && isBefore(taskDate, addDays(today, 7)));
     })
     .slice(0, 3);
 
@@ -78,159 +110,263 @@ export default function Index() {
     ? Math.round((completedTasksCount / totalTasksCount) * 100) 
     : 0;
 
+  // Dashboard stats
+  const stats = [
+    { 
+      title: "Completion Rate", 
+      value: `${completionRate}%`, 
+      icon: CheckCircle,
+      description: `${completedTasksCount} / ${totalTasksCount} tasks completed`,
+      color: "text-green-500"
+    },
+    { 
+      title: "Today's Tasks", 
+      value: todayTasks.length.toString(), 
+      icon: Calendar,
+      description: "Tasks due today",
+      color: "text-blue-500"
+    },
+    { 
+      title: "Upcoming Tasks", 
+      value: upcomingTasks.length.toString(), 
+      icon: Clock,
+      description: "Due in the next 7 days",
+      color: "text-orange-500"
+    }
+  ];
+
   return (
-    <div className="min-h-screen p-6 pb-20">
-      <header className="mb-6">
-        <h1 className="text-3xl font-bold text-primary">Dashboard</h1>
-        <p className="text-muted-foreground mt-1">
-          Welcome back! Here's an overview of your tasks and files.
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.2 }}
+      className="container pb-20"
+    >
+      <header className="py-6">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <p className="text-muted-foreground">
+          Welcome to your personal task management system
         </p>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Task Summary</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between mb-2">
-              <span>Total Tasks</span>
-              <span className="font-medium">{totalTasksCount}</span>
-            </div>
-            <div className="flex items-center justify-between mb-2">
-              <span>Completed</span>
-              <span className="font-medium">{completedTasksCount}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Completion Rate</span>
-              <span className="font-medium">{completionRate}%</span>
-            </div>
-            <div className="w-full bg-secondary/30 rounded-full h-2.5 mt-4">
-              <div 
-                className="bg-primary h-2.5 rounded-full" 
-                style={{ width: `${completionRate}%` }}
-              ></div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Files Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between mb-2">
-              <span>Total Files</span>
-              <span className="font-medium">{files.length}</span>
-            </div>
-            <div className="mt-4">
-              <Button 
-                variant="outline" 
-                className="w-full justify-between"
-                onClick={() => navigate('/files')}
-              >
-                <span>Manage Files</span>
-                <FileText className="h-4 w-4" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <section className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Upcoming Tasks</h2>
-          <Button 
-            variant="ghost" 
-            className="text-primary"
-            onClick={() => navigate('/task-preview')}
-          >
-            View all
-          </Button>
-        </div>
-
-        {upcomingTasks.length === 0 ? (
-          <div className="bg-secondary/20 rounded-lg p-4 text-center">
-            <CheckCircle className="h-8 w-8 mx-auto mb-2 text-green-500" />
-            <p className="text-muted-foreground">No upcoming tasks for the next 7 days. Good job!</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {upcomingTasks.map(task => (
-              <Card key={task.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-medium mb-1">{task.title}</h3>
-                      <div className="flex flex-wrap gap-2">
-                        <div className="flex items-center text-xs text-muted-foreground">
-                          <Calendar className="h-3 w-3 mr-1" />
-                          <span>{format(new Date(task.dueDate), "MMM d, yyyy")}</span>
-                        </div>
-                        {task.dueTime && (
-                          <div className="flex items-center text-xs text-muted-foreground">
-                            <Clock className="h-3 w-3 mr-1" />
-                            <span>{task.dueTime}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className={`px-2 py-1 rounded-full text-xs font-medium text-white ${
-                      task.priority === 'High' ? 'bg-red-500' : 
-                      task.priority === 'Medium' ? 'bg-yellow-500' : 
-                      'bg-green-500'
-                    }`}>
-                      {task.priority}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </section>
-
       <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Recent Files</h2>
-          <Button 
-            variant="ghost" 
-            className="text-primary"
-            onClick={() => navigate('/files')}
-          >
-            View all
-          </Button>
+        <div className="grid gap-4 md:grid-cols-3">
+          {stats.map((stat, i) => (
+            <Card key={i}>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {stat.title}
+                </CardTitle>
+                <stat.icon className={cn("h-4 w-4", stat.color)} />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stat.value}</div>
+                <p className="text-xs text-muted-foreground pt-1">
+                  {stat.description}
+                </p>
+                {stat.title === "Completion Rate" && (
+                  <Progress 
+                    value={completionRate} 
+                    className="h-2 mt-2" 
+                  />
+                )}
+              </CardContent>
+            </Card>
+          ))}
         </div>
+      </section>
 
-        {files.length === 0 ? (
-          <div className="bg-secondary/20 rounded-lg p-4 text-center">
-            <FileText className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-            <p className="text-muted-foreground">No files uploaded yet.</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {files.slice(0, 3).map(file => (
-              <div 
-                key={file.id} 
-                className="flex items-center p-3 rounded-lg border hover:bg-secondary/10 transition-colors cursor-pointer"
-                onClick={() => navigate('/files')}
-              >
-                <div className="w-10 h-10 rounded bg-secondary/30 flex items-center justify-center mr-3">
-                  {file.type.includes('image') ? '🖼️' : 
-                   file.type.includes('pdf') ? '📄' :
-                   file.type.includes('document') ? '📝' : '📁'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">{file.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {(file.size / 1024).toFixed(1)} KB · {format(new Date(file.created_at), "MMM d, yyyy")}
-                  </p>
-                </div>
+      <section className="mt-8">
+        <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <MenuItem 
+            to="/files"
+            icon={FolderOpen}
+            title="Files"
+            description="Manage your documents & media"
+            color="bg-blue-500/10 text-blue-600 dark:text-blue-400"
+          />
+
+          <MenuItem 
+            to="/add"
+            icon={Plus}
+            title="Add Task"
+            description="Create a new task or reminder"
+            color="bg-purple-500/10 text-purple-600 dark:text-purple-400"
+          />
+
+          <MenuItem 
+            to="/reminders"
+            icon={CalendarClock}
+            title="Reminders"
+            description="View your scheduled reminders"
+            color="bg-amber-500/10 text-amber-600 dark:text-amber-400"
+          />
+        </div>
+      </section>
+
+      {(todayTasks.length > 0 || upcomingTasks.length > 0) && (
+        <section className="mt-8">
+          <h2 className="text-xl font-semibold mb-4">Task Overview</h2>
+          
+          {todayTasks.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-lg font-medium mb-3 flex items-center">
+                <Calendar className="h-4 w-4 mr-2 text-blue-500" />
+                Today's Tasks
+              </h3>
+              <div className="space-y-3">
+                {todayTasks.map((task) => (
+                  <TaskItem key={task.id} task={task} />
+                ))}
               </div>
+            </div>
+          )}
+          
+          {upcomingTasks.length > 0 && (
+            <div>
+              <h3 className="text-lg font-medium mb-3 flex items-center">
+                <Clock className="h-4 w-4 mr-2 text-orange-500" />
+                Upcoming Tasks
+              </h3>
+              <div className="space-y-3">
+                {upcomingTasks.map((task) => (
+                  <TaskItem key={task.id} task={task} />
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
+
+      {files.length > 0 && (
+        <section className="mt-8 mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Recent Files</h2>
+            <Button 
+              variant="ghost" 
+              className="text-sm"
+              onClick={() => navigate("/files")}
+            >
+              View all
+              <ChevronRight className="ml-1 h-4 w-4" />
+            </Button>
+          </div>
+          
+          <div className="space-y-3">
+            {files.slice(0, 3).map((file) => (
+              <FileItem key={file.id} file={file} />
             ))}
           </div>
-        )}
-      </section>
-    </div>
+        </section>
+      )}
+    </motion.div>
   );
 }
+
+const TaskItem = ({ task }) => {
+  const priorityColors = {
+    Low: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+    Medium: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300",
+    High: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+  };
+  
+  return (
+    <Card className="overflow-hidden">
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between">
+          <div className="flex items-start space-x-3">
+            <div 
+              className={cn(
+                "mt-0.5 rounded-full p-1", 
+                task.completed 
+                  ? "bg-green-500/20 text-green-600" 
+                  : "bg-gray-200 text-gray-500"
+              )}
+            >
+              <CheckSquare className="h-4 w-4" />
+            </div>
+            <div>
+              <h4 className={cn(
+                "font-medium",
+                task.completed && "line-through text-muted-foreground"
+              )}>
+                {task.title}
+              </h4>
+              {task.description && (
+                <p className="text-sm text-muted-foreground line-clamp-1 mt-0.5">
+                  {task.description}
+                </p>
+              )}
+            </div>
+          </div>
+          
+          <div className="flex space-x-2">
+            <Badge className={priorityColors[task.priority]}>
+              {task.priority}
+            </Badge>
+            
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="text-xs text-muted-foreground whitespace-nowrap">
+                    {format(new Date(task.dueDate), "MMM d")}
+                    {task.dueTime && `, ${task.dueTime}`}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Due date
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const FileItem = ({ file }) => {
+  const navigate = useNavigate();
+  const fileTypeIcons = {
+    pdf: "bg-red-100 text-red-800",
+    doc: "bg-blue-100 text-blue-800",
+    docx: "bg-blue-100 text-blue-800",
+    xls: "bg-green-100 text-green-800",
+    xlsx: "bg-green-100 text-green-800",
+    jpg: "bg-purple-100 text-purple-800",
+    jpeg: "bg-purple-100 text-purple-800",
+    png: "bg-purple-100 text-purple-800",
+  };
+  
+  const getFileExtension = (filename) => {
+    return filename.split('.').pop().toLowerCase();
+  };
+  
+  const extension = getFileExtension(file.name);
+  const fileTypeClass = fileTypeIcons[extension] || "bg-gray-100 text-gray-800";
+  
+  return (
+    <Card 
+      className="overflow-hidden hover:shadow-md cursor-pointer"
+      onClick={() => navigate(`/files/${file.id}`)}
+    >
+      <CardContent className="p-4">
+        <div className="flex items-center space-x-3">
+          <div className={`rounded p-1.5 ${fileTypeClass}`}>
+            <FileText className="h-4 w-4" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-medium truncate">{file.name}</h4>
+            <p className="text-xs text-muted-foreground">
+              {format(new Date(file.created_at), "MMM d, yyyy")}
+              {file.size && ` • ${Math.round(file.size / 1024)} KB`}
+            </p>
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
