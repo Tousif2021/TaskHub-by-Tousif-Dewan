@@ -1,11 +1,25 @@
-
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { format, isBefore, isToday, addDays } from "date-fns";
-import { supabase } from "@/integrations/supabase/client";
+import { motion } from "framer-motion";
+import { 
+  FileText, 
+  FolderOpen, 
+  ChevronRight,
+  CheckCircle,
+  CheckSquare,
+  CalendarClock
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, CheckCircle, Clock, FileText } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import { format, isToday, isBefore, addDays } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Calendar, Clock } from "lucide-react";
+
 
 export default function Index() {
   const navigate = useNavigate();
@@ -20,7 +34,7 @@ export default function Index() {
         .order("due_time", { ascending: true });
 
       if (error) throw error;
-      
+
       return (data || []).map((item) => ({
         id: item.id,
         title: item.title,
@@ -43,7 +57,7 @@ export default function Index() {
         .limit(5);
 
       if (error) throw error;
-      
+
       return data || [];
     },
   });
@@ -57,7 +71,7 @@ export default function Index() {
         (isBefore(today, taskDate) && isBefore(taskDate, addDays(today, 7)));
     })
     .slice(0, 3);
-    
+
   const completedTasksCount = tasks.filter(task => task.completed).length;
   const totalTasksCount = tasks.length;
   const completionRate = totalTasksCount > 0 
