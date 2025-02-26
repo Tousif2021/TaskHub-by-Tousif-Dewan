@@ -1,0 +1,74 @@
+[plugin:vite:react-swc] × the name `motion` is defined multiple times
+    ╭─[/home/runner/workspace/src/pages/Reminders.tsx:4:1]
+  1 │ import { useState, useEffect } from "react";
+  2 │ import Navigation from "@/components/Navigation";
+  3 │ import { format, isAfter, isBefore, isToday, addDays } from "date-fns";
+  4 │ import { motion, AnimatePresence } from "framer-motion";
+    ·          ───┬──
+    ·             ╰── previous definition of `motion` here
+  5 │ import { Check, Clock, Calendar } from "lucide-react";
+  6 │ 
+  7 │ // Mock data structure
+  8 │ interface Reminder {
+  9 │   id: string;
+ 10 │   title: string;
+ 11 │   description: string;
+ 12 │   date: Date;
+ 13 │   completed: boolean;
+ 14 │ }
+ 15 │ 
+ 16 │ // For demo, using mock data
+ 17 │ const mockReminders: Reminder[] = [
+ 18 │   {
+ 19 │     id: "1",
+ 20 │     title: "Project Deadline",
+ 21 │     description: "Complete the final report",
+ 22 │     date: addDays(new Date(), 2),
+ 23 │     completed: false,
+ 24 │   },
+ 25 │   {
+ 26 │     id: "2",
+ 27 │     title: "Team Meeting",
+ 28 │     description: "Weekly sprint planning",
+ 29 │     date: addDays(new Date(), 1),
+ 30 │     completed: false,
+ 31 │   },
+ 32 │   {
+ 33 │     id: "3",
+ 34 │     title: "Doctor Appointment",
+ 35 │     description: "Annual check-up",
+ 36 │     date: addDays(new Date(), 5),
+ 37 │     completed: false,
+ 38 │   },
+ 39 │   {
+ 40 │     id: "4",
+ 41 │     title: "Past Due Task",
+ 42 │     description: "This task is overdue",
+ 43 │     date: addDays(new Date(), -2),
+ 44 │     completed: false,
+ 45 │   },
+ 46 │   {
+ 47 │     id: "5",
+ 48 │     title: "Today's Task",
+ 49 │     description: "Due today",
+ 50 │     date: new Date(),
+ 51 │     completed: false,
+ 52 │   },
+ 53 │ ];
+ 54 │ 
+ 55 │ import { motion } from "framer-motion";
+    ·          ───┬──
+    ·             ╰── `motion` redefined here
+ 56 │ 
+ 57 │ const Reminders = () => {
+ 58 │   const [reminders, setReminders] = useState<Reminder[]>(mockReminders);
+    ╰────
+/home/runner/workspace/src/pages/Reminders.tsx:4:1
+69 |    };
+70 |  
+71 |    const filteredReminders = reminders.filter((reminder) => {
+   |            ^
+72 |      if (filter === "all") return true;
+73 |      if (filter === "today") return isToday(reminder.date);
+Click outside, press Esc key, or fix the code to dismiss.
+You can also disable this overlay by setting server.hmr.overlay to false in vite.config.ts.
