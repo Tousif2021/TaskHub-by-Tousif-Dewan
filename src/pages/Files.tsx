@@ -106,8 +106,6 @@ const Files = () => {
           </div>
         </DialogContent>
       </Dialog>
-      
-      <Navigation />
     </div>
   );
 };

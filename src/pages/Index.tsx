@@ -85,9 +85,6 @@ const Index = () => {
           color="bg-purple-500/10 text-purple-600 dark:text-purple-400"
         />
       </div>
-
-      {/* Navigation moved outside the main content */}
-      <Navigation />
     </div>
   );
 };

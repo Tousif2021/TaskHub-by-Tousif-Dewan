@@ -60,11 +60,11 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light">
-        <Navigation/>
         <TooltipProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <Navigation />
             <AnimatedRoutes />
           </BrowserRouter>
         </TooltipProvider>
