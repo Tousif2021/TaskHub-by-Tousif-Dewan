@@ -20,13 +20,13 @@ const MenuItem = ({ to, icon: Icon, title, description, color }: MenuItemProps) 
   <div>
     <Link to={to}>
       <div 
-        className="p-5 rounded-lg border border-gray-100 dark:border-gray-800 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm hover:shadow-md transition-all duration-300 hover:translate-y-[-2px] h-full"
+        className="p-3 rounded-lg border border-gray-100 dark:border-gray-800 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm hover:shadow-md transition-all duration-300 hover:translate-y-[-2px] h-full"
       >
-        <div className={`w-12 h-12 rounded-full ${color} flex items-center justify-center mb-3`}>
-          <Icon className="w-5 h-5" />
+        <div className={`w-9 h-9 rounded-full ${color} flex items-center justify-center mb-2`}>
+          <Icon className="w-4 h-4" />
         </div>
-        <h3 className="text-lg font-bold mb-1">{title}</h3>
-        <p className="text-sm text-muted-foreground">{description}</p>
+        <h3 className="text-base font-bold mb-0.5">{title}</h3>
+        <p className="text-xs text-muted-foreground">{description}</p>
       </div>
     </Link>
   </div>
@@ -126,11 +126,11 @@ const Index = () => {
 
   return (
     <div 
-      className="min-h-screen p-8 pb-24"
+      className="min-h-screen p-5 pb-20"
     >
-      <header className="mb-10 flex justify-between items-center">
+      <header className="mb-5 flex justify-between items-center">
         <div className="flex items-center">
-          <h1 className="text-2xl font-extrabold">
+          <h1 className="text-xl font-extrabold">
             <span className="text-[#1e40af]">Task</span>
             <span className="text-primary">Hub</span>
             <span className="text-xs ml-1 text-[#1e40af] font-medium align-top">®</span>
@@ -150,21 +150,21 @@ const Index = () => {
       </header>
 
       {user && !isLoading && (
-        <div className="mb-8 max-w-4xl mx-auto">
-          <div className="bg-white/80 dark:bg-slate-800/80 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+        <div className="mb-5 max-w-4xl mx-auto">
+          <div className="bg-white/80 dark:bg-slate-800/80 p-4 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
               Welcome back, {firstName || "User"}!
             </h2>
-            <p className="text-accent dark:text-accent/80 font-medium mt-1">{quote}</p>
+            <p className="text-accent dark:text-accent/80 text-sm font-medium mt-0.5">{quote}</p>
             
-            <div className="flex flex-col sm:flex-row gap-4 mt-6">
-              <div className="flex-1 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-900/30">
-                <h3 className="text-sm text-blue-700 dark:text-blue-300 font-medium">Due Today</h3>
-                <div className="mt-2 flex items-end gap-2">
-                  <span className="text-3xl font-bold text-blue-700 dark:text-blue-300">
+            <div className="flex flex-col sm:flex-row gap-3 mt-4">
+              <div className="flex-1 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-900/30">
+                <h3 className="text-xs text-blue-700 dark:text-blue-300 font-medium">Due Today</h3>
+                <div className="mt-1 flex items-end gap-1.5">
+                  <span className="text-2xl font-bold text-blue-700 dark:text-blue-300">
                     {taskStats.todayTasks}
                   </span>
-                  <span className="text-blue-600 dark:text-blue-400 text-sm mb-0.5">
+                  <span className="text-blue-600 dark:text-blue-400 text-xs mb-0.5">
                     task{taskStats.todayTasks !== 1 ? 's' : ''}
                   </span>
                 </div>
@@ -172,20 +172,20 @@ const Index = () => {
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="mt-2 text-blue-600 dark:text-blue-400 px-0 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                    className="mt-1 text-blue-600 dark:text-blue-400 px-0 h-7 text-xs hover:bg-blue-100 dark:hover:bg-blue-900/30"
                   >
                     View all
                   </Button>
                 </Link>
               </div>
               
-              <div className="flex-1 bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-100 dark:border-amber-900/30">
-                <h3 className="text-sm text-amber-700 dark:text-amber-300 font-medium">Upcoming</h3>
-                <div className="mt-2 flex items-end gap-2">
-                  <span className="text-3xl font-bold text-amber-700 dark:text-amber-300">
+              <div className="flex-1 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-100 dark:border-amber-900/30">
+                <h3 className="text-xs text-amber-700 dark:text-amber-300 font-medium">Upcoming</h3>
+                <div className="mt-1 flex items-end gap-1.5">
+                  <span className="text-2xl font-bold text-amber-700 dark:text-amber-300">
                     {taskStats.upcomingTasks}
                   </span>
-                  <span className="text-amber-600 dark:text-amber-400 text-sm mb-0.5">
+                  <span className="text-amber-600 dark:text-amber-400 text-xs mb-0.5">
                     task{taskStats.upcomingTasks !== 1 ? 's' : ''}
                   </span>
                 </div>
@@ -193,7 +193,7 @@ const Index = () => {
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="mt-2 text-amber-600 dark:text-amber-400 px-0 hover:bg-amber-100 dark:hover:bg-amber-900/30"
+                    className="mt-1 text-amber-600 dark:text-amber-400 px-0 h-7 text-xs hover:bg-amber-100 dark:hover:bg-amber-900/30"
                   >
                     View all
                   </Button>
@@ -205,22 +205,22 @@ const Index = () => {
       )}
       
       {user && isLoading && (
-        <div className="mb-8 max-w-4xl mx-auto">
-          <div className="bg-white/80 dark:bg-slate-800/80 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+        <div className="mb-5 max-w-4xl mx-auto">
+          <div className="bg-white/80 dark:bg-slate-800/80 p-4 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
               Welcome back, {firstName || "User"}!
             </h2>
-            <p className="text-accent dark:text-accent/80 font-medium mt-1">{quote}</p>
+            <p className="text-accent dark:text-accent/80 text-sm font-medium mt-0.5">{quote}</p>
             
-            <div className="flex flex-col sm:flex-row gap-4 mt-6">
-              <div className="flex-1 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg animate-pulse">
-                <div className="h-5 w-24 bg-gray-200 dark:bg-gray-700 rounded mb-3"></div>
-                <div className="h-8 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div className="flex flex-col sm:flex-row gap-3 mt-4">
+              <div className="flex-1 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg animate-pulse">
+                <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                <div className="h-6 w-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
               </div>
               
-              <div className="flex-1 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg animate-pulse">
-                <div className="h-5 w-24 bg-gray-200 dark:bg-gray-700 rounded mb-3"></div>
-                <div className="h-8 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div className="flex-1 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg animate-pulse">
+                <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                <div className="h-6 w-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
               </div>
             </div>
           </div>
@@ -228,7 +228,7 @@ const Index = () => {
       )}
 
       <div
-        className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto"
+        className="grid grid-cols-2 gap-3 max-w-4xl mx-auto"
       >
         <MenuItem 
           to="/add"
