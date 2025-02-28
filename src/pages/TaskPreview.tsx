@@ -16,6 +16,7 @@ interface Task {
   details: string;
   date: string;
   priority: string;
+  category: string;
 }
 
 const TaskPreview = () => {
@@ -51,13 +52,15 @@ const TaskPreview = () => {
         details: task.description || "",
         date: task.due_date,
         priority: task.priority.toLowerCase(),
+        category: task.category || "Personal",
       }));
     },
   });
 
   const filteredTasks = tasks.filter(task => 
     task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    task.details.toLowerCase().includes(searchTerm.toLowerCase())
+    task.details.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    task.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getPriorityColor = (priority: string) => {
@@ -70,6 +73,23 @@ const TaskPreview = () => {
         return "bg-green-100 text-green-800 border-green-300 font-medium";
       default:
         return "bg-gray-100 text-gray-800 border-gray-300 font-medium";
+    }
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case "Work":
+        return "bg-blue-100 text-blue-800";
+      case "Personal":
+        return "bg-purple-100 text-purple-800";
+      case "School":
+        return "bg-amber-100 text-amber-800";
+      case "Health":
+        return "bg-green-100 text-green-800";
+      case "Shopping":
+        return "bg-pink-100 text-pink-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -155,9 +175,14 @@ const TaskPreview = () => {
             >
               <div className="flex justify-between items-start mb-2">
                 <h3 className="text-lg font-bold">{task.title}</h3>
-                <Badge className={getPriorityColor(task.priority)}>
-                  {task.priority}
-                </Badge>
+                <div className="flex gap-2">
+                  <Badge className={getCategoryColor(task.category)}>
+                    {task.category}
+                  </Badge>
+                  <Badge className={getPriorityColor(task.priority)}>
+                    {task.priority}
+                  </Badge>
+                </div>
               </div>
               <p className="text-sm text-muted-foreground mb-3">{task.details}</p>
               <div className="text-xs text-muted-foreground">

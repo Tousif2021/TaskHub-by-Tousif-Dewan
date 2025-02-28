@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, CalendarIcon } from "lucide-react";
+import { ChevronLeft, CalendarIcon, Plus, Check } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,13 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth-provider";
 import { useToast } from "@/hooks/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 
 const AddTask = () => {
   const navigate = useNavigate();
@@ -29,6 +36,46 @@ const AddTask = () => {
   const [priority, setPriority] = useState("Medium");
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [category, setCategory] = useState("Personal");
+  const [customCategory, setCustomCategory] = useState("");
+  const [showCustomInput, setShowCustomInput] = useState(false);
+
+  // Predefined categories
+  const categories = ["Work", "Personal", "School", "Health", "Shopping"];
+
+  const handleCategorySelect = (selected: string) => {
+    if (selected === "Custom") {
+      setShowCustomInput(true);
+      setCustomCategory("");
+    } else {
+      setCategory(selected);
+      setShowCustomInput(false);
+    }
+  };
+
+  const handleCustomCategorySubmit = () => {
+    if (customCategory.trim()) {
+      setCategory(customCategory.trim());
+      setShowCustomInput(false);
+    }
+  };
+
+  const getCategoryColor = (cat: string) => {
+    switch (cat) {
+      case "Work":
+        return "bg-blue-100 text-blue-800 hover:bg-blue-200";
+      case "Personal":
+        return "bg-purple-100 text-purple-800 hover:bg-purple-200";
+      case "School":
+        return "bg-amber-100 text-amber-800 hover:bg-amber-200";
+      case "Health":
+        return "bg-green-100 text-green-800 hover:bg-green-200";
+      case "Shopping":
+        return "bg-pink-100 text-pink-800 hover:bg-pink-200";
+      default:
+        return "bg-gray-100 text-gray-800 hover:bg-gray-200";
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,7 +127,8 @@ const AddTask = () => {
             due_date: formattedDate,
             due_time: formattedTime,
             user_id: user.id,
-            completed: false
+            completed: false,
+            category: category
           }
         ]);
       
@@ -136,6 +184,64 @@ const AddTask = () => {
             required
             className="h-12 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-accent/20"
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-base">Category</Label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {showCustomInput ? (
+              <div className="flex w-full">
+                <Input
+                  value={customCategory}
+                  onChange={(e) => setCustomCategory(e.target.value)}
+                  placeholder="Enter custom category"
+                  className="rounded-r-none border-r-0 h-10"
+                />
+                <Button 
+                  type="button" 
+                  onClick={handleCustomCategorySubmit}
+                  className="rounded-l-none h-10 bg-accent"
+                >
+                  <Check className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <>
+                {categories.map((cat) => (
+                  <Badge
+                    key={cat}
+                    className={cn(
+                      "cursor-pointer py-1.5 px-3 text-sm font-medium transition-colors",
+                      getCategoryColor(cat),
+                      category === cat ? "ring-2 ring-offset-2 ring-accent" : ""
+                    )}
+                    onClick={() => handleCategorySelect(cat)}
+                  >
+                    {cat}
+                  </Badge>
+                ))}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Badge
+                      className="cursor-pointer py-1.5 px-3 text-sm font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
+                    >
+                      <Plus className="h-3.5 w-3.5 mr-1" /> More
+                    </Badge>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-40">
+                    <DropdownMenuItem onClick={() => handleCategorySelect("Custom")}>
+                      Add Custom Category
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            )}
+          </div>
+          {!showCustomInput && (
+            <div className="text-xs text-muted-foreground">
+              Selected: <span className="font-medium">{category}</span>
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">
