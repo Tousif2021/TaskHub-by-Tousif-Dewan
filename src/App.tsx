@@ -19,14 +19,23 @@ import NotFound from "./pages/NotFound";
 import Navigation from "./components/Navigation";
 import "./App.css";
 
-const queryClient = new QueryClient();
+// Create a new queryClient instance with optimized settings
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 30000
+    }
+  }
+});
 
 // AnimatedRoutes component to handle page transitions
 const AnimatedRoutes = () => {
   const location = useLocation();
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="wait" initial={false}>
       <Routes location={location} key={location.pathname}>
         <Route path="/auth" element={<Auth />} />
         <Route 
@@ -99,10 +108,10 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
-          <Toaster />
-          <Sonner />
           <BrowserRouter>
             <AuthProvider>
+              <Toaster />
+              <Sonner />
               <Navigation />
               <AnimatedRoutes />
             </AuthProvider>

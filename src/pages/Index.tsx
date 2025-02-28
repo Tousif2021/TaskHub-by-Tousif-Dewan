@@ -57,6 +57,7 @@ const Index = () => {
     todayTasks: 0,
     upcomingTasks: 0
   });
+  const [isLoading, setIsLoading] = useState(true);
   
   // Get random motivational quote
   useEffect(() => {
@@ -75,7 +76,10 @@ const Index = () => {
   // Fetch task statistics
   useEffect(() => {
     const fetchTaskStats = async () => {
-      if (!user) return;
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
       
       try {
         const { data, error } = await supabase
@@ -85,6 +89,7 @@ const Index = () => {
         
         if (error) {
           console.error("Error fetching tasks:", error);
+          setIsLoading(false);
           return;
         }
         
@@ -92,14 +97,18 @@ const Index = () => {
         let todayCount = 0;
         let upcomingCount = 0;
         
-        data.forEach(task => {
-          const taskDate = new Date(task.due_date);
-          if (isToday(taskDate) && !task.completed) {
-            todayCount++;
-          } else if (isFuture(taskDate) && !isToday(taskDate) && !task.completed) {
-            upcomingCount++;
-          }
-        });
+        if (data && data.length > 0) {
+          data.forEach(task => {
+            if (!task.completed) {
+              const taskDate = new Date(task.due_date);
+              if (isToday(taskDate)) {
+                todayCount++;
+              } else if (isFuture(taskDate) && !isToday(taskDate)) {
+                upcomingCount++;
+              }
+            }
+          });
+        }
         
         setTaskStats({
           todayTasks: todayCount,
@@ -107,6 +116,8 @@ const Index = () => {
         });
       } catch (err) {
         console.error("Failed to fetch task statistics:", err);
+      } finally {
+        setIsLoading(false);
       }
     };
     
@@ -138,7 +149,7 @@ const Index = () => {
         )}
       </header>
 
-      {user && (
+      {user && !isLoading && (
         <div className="mb-8 max-w-4xl mx-auto">
           <div className="bg-white/80 dark:bg-slate-800/80 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
             <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
@@ -146,7 +157,7 @@ const Index = () => {
             </h2>
             <p className="text-accent dark:text-accent/80 font-medium mt-1">{quote}</p>
             
-            <div className="flex gap-4 mt-6">
+            <div className="flex flex-col sm:flex-row gap-4 mt-6">
               <div className="flex-1 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-900/30">
                 <h3 className="text-sm text-blue-700 dark:text-blue-300 font-medium">Due Today</h3>
                 <div className="mt-2 flex items-end gap-2">
@@ -187,6 +198,29 @@ const Index = () => {
                     View all
                   </Button>
                 </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {user && isLoading && (
+        <div className="mb-8 max-w-4xl mx-auto">
+          <div className="bg-white/80 dark:bg-slate-800/80 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+              Welcome back, {firstName || "User"}!
+            </h2>
+            <p className="text-accent dark:text-accent/80 font-medium mt-1">{quote}</p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 mt-6">
+              <div className="flex-1 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg animate-pulse">
+                <div className="h-5 w-24 bg-gray-200 dark:bg-gray-700 rounded mb-3"></div>
+                <div className="h-8 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              </div>
+              
+              <div className="flex-1 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg animate-pulse">
+                <div className="h-5 w-24 bg-gray-200 dark:bg-gray-700 rounded mb-3"></div>
+                <div className="h-8 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
               </div>
             </div>
           </div>
