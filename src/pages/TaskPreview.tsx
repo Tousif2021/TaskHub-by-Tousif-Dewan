@@ -40,23 +40,22 @@ const TaskPreview = () => {
   const printRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  // This fixes the printing functionality
+  // This fixes the printing functionality by properly typing it
   const handlePrint = useReactToPrint({
     documentTitle: "Task List",
-  });
-
-  // Create a handler that passes the ref to the print function
-  const handlePrintClick = () => {
-    if (printRef.current) {
-      handlePrint(printRef.current);
-    } else {
+    content: () => printRef.current,
+    onAfterPrint: () => {
+      console.log("Print completed successfully");
+    },
+    onPrintError: (error) => {
+      console.error("Print failed:", error);
       toast({
         title: "Print Error",
         description: "Unable to print the task list. Please try again.",
         variant: "destructive"
       });
     }
-  };
+  });
 
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["task-preview"],
@@ -167,7 +166,7 @@ const TaskPreview = () => {
           <Button 
             variant="outline" 
             size="icon" 
-            onClick={handlePrintClick}
+            onClick={handlePrint}
             className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <Printer className="h-5 w-5" />
