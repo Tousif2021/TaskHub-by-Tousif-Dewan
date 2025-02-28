@@ -16,20 +16,92 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/auth-provider";
+import { useToast } from "@/hooks/use-toast";
 
 const AddTask = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
   const [priority, setPriority] = useState("medium");
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would add the task to your state/database
-    console.log({ title, details, priority, date });
-    // Navigate back to tasks list
-    navigate("/tasks");
+    
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to create tasks",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!title.trim()) {
+      toast({
+        title: "Error",
+        description: "Task title is required",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!date) {
+      toast({
+        title: "Error",
+        description: "Due date is required",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Format the date as YYYY-MM-DD for Supabase
+      const formattedDate = format(date, "yyyy-MM-dd");
+      
+      // Default time to noon if not specified
+      const formattedTime = "12:00:00";
+      
+      const { error } = await supabase
+        .from("tasks")
+        .insert([
+          {
+            title,
+            description: details,
+            priority,
+            due_date: formattedDate,
+            due_time: formattedTime,
+            user_id: user.id,
+            completed: false
+          }
+        ]);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: "Task created successfully",
+      });
+      
+      // Navigate to reminders page to see the task
+      navigate("/reminders");
+    } catch (error: any) {
+      console.error("Error creating task:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create task",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -121,8 +193,9 @@ const AddTask = () => {
         <Button 
           type="submit" 
           className="w-full h-12 text-base font-medium hover:scale-[1.02] transition-transform bg-accent"
+          disabled={isSubmitting}
         >
-          Create Task
+          {isSubmitting ? "Creating..." : "Create Task"}
         </Button>
       </form>
     </motion.div>

@@ -1,187 +1,347 @@
 
 import { useState, useEffect } from "react";
-import Navigation from "@/components/Navigation";
-import { format, isAfter, isBefore, isToday, addDays } from "date-fns";
-import { Check, Clock, Calendar } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
+import { ChevronLeft, Calendar, Clock, Flag, CheckCircle, Circle, Search, Plus } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useAuth } from "@/components/auth-provider";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { format, isToday, isTomorrow, isThisWeek, isAfter } from "date-fns";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
-// Interface for reminder structure
-interface Reminder {
+interface Task {
   id: string;
   title: string;
-  description: string;
-  date: Date;
+  description: string | null;
+  priority: string;
+  due_date: string;
+  due_time: string;
   completed: boolean;
 }
 
 const Reminders = () => {
-  const [filter, setFilter] = useState<"all" | "today" | "upcoming" | "overdue">("all");
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState("all");
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Convert tasks to reminders format
-  const { data: reminders = [], isLoading, refetch } = useQuery({
-    queryKey: ["reminders"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("tasks")
-        .select("*")
-        .order("due_date", { ascending: true });
-
-      if (error) throw error;
+  // Fetch tasks from Supabase
+  useEffect(() => {
+    const fetchTasks = async () => {
+      if (!user) return;
       
-      return (data || []).map((task) => ({
-        id: task.id,
-        title: task.title,
-        description: task.description || "",
-        date: new Date(task.due_date),
-        completed: task.completed || false,
-      }));
-    },
-  });
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase
+          .from("tasks")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("due_date", { ascending: true })
+          .order("due_time", { ascending: true });
+        
+        if (error) throw error;
+        setTasks(data || []);
+        setFilteredTasks(data || []);
+      } catch (error: any) {
+        console.error("Error fetching tasks:", error);
+        toast({
+          title: "Error fetching tasks",
+          description: error.message || "Could not fetch your tasks",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchTasks();
+  }, [user]);
 
-  const toggleComplete = async (id: string, completed: boolean) => {
+  // Filter tasks based on search query and selected filter
+  useEffect(() => {
+    if (!tasks.length) return;
+    
+    let result = [...tasks];
+    
+    // Apply search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(task => 
+        task.title.toLowerCase().includes(query) || 
+        (task.description && task.description.toLowerCase().includes(query))
+      );
+    }
+    
+    // Apply time filter
+    switch (selectedFilter) {
+      case "today":
+        result = result.filter(task => isToday(new Date(task.due_date)));
+        break;
+      case "tomorrow":
+        result = result.filter(task => isTomorrow(new Date(task.due_date)));
+        break;
+      case "thisWeek":
+        result = result.filter(task => 
+          isThisWeek(new Date(task.due_date)) && 
+          isAfter(new Date(task.due_date), new Date())
+        );
+        break;
+      case "completed":
+        result = result.filter(task => task.completed);
+        break;
+      case "pending":
+        result = result.filter(task => !task.completed);
+        break;
+      // "all" filter doesn't need special handling
+    }
+    
+    setFilteredTasks(result);
+  }, [searchQuery, selectedFilter, tasks]);
+
+  // Toggle task completion
+  const toggleTaskCompletion = async (taskId: string, currentStatus: boolean) => {
     try {
       const { error } = await supabase
         .from("tasks")
-        .update({ completed })
-        .eq("id", id);
-
+        .update({ completed: !currentStatus })
+        .eq("id", taskId);
+      
       if (error) throw error;
-      refetch();
-      toast.success(completed ? "Reminder completed!" : "Reminder uncompleted");
-    } catch (error) {
-      console.error("Error updating reminder:", error);
-      toast.error("Failed to update reminder");
+      
+      // Update local state to reflect the change
+      setTasks(tasks.map(task => 
+        task.id === taskId ? { ...task, completed: !currentStatus } : task
+      ));
+      
+      toast({
+        title: !currentStatus ? "Task completed" : "Task marked incomplete",
+        description: "Task status updated successfully",
+      });
+    } catch (error: any) {
+      console.error("Error updating task:", error);
+      toast({
+        title: "Error updating task",
+        description: error.message || "Could not update task status",
+        variant: "destructive"
+      });
     }
   };
 
-  const getFilteredReminders = () => {
-    return reminders.filter((reminder) => {
-      if (filter === "all") return true;
-      if (filter === "today") return isToday(reminder.date);
-      if (filter === "upcoming") return isAfter(reminder.date, new Date()) && !isToday(reminder.date);
-      if (filter === "overdue") return isBefore(reminder.date, new Date()) && !isToday(reminder.date) && !reminder.completed;
-      return true;
+  // Render priority badge
+  const renderPriorityBadge = (priority: string) => {
+    switch (priority) {
+      case "high":
+        return <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200">High</Badge>;
+      case "medium":
+        return <Badge variant="outline" className="bg-yellow-50 text-yellow-600 border-yellow-200">Medium</Badge>;
+      case "low":
+        return <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">Low</Badge>;
+      default:
+        return null;
+    }
+  };
+
+  // Group tasks by date
+  const groupTasksByDate = (tasks: Task[]) => {
+    const groups: { [key: string]: Task[] } = {};
+    
+    tasks.forEach(task => {
+      const dateStr = task.due_date;
+      if (!groups[dateStr]) {
+        groups[dateStr] = [];
+      }
+      groups[dateStr].push(task);
     });
+    
+    return groups;
   };
 
-  const getReminderStatus = (reminder: Reminder) => {
-    if (reminder.completed) return "completed";
-    if (isBefore(reminder.date, new Date()) && !isToday(reminder.date)) return "overdue";
-    if (isToday(reminder.date)) return "today";
-    return "upcoming";
+  // Format date for display
+  const formatDateHeading = (dateStr: string) => {
+    const date = new Date(dateStr);
+    
+    if (isToday(date)) {
+      return "Today";
+    } else if (isTomorrow(date)) {
+      return "Tomorrow";
+    } else {
+      return format(date, "EEEE, MMMM d, yyyy");
+    }
   };
 
-  const filteredReminders = getFilteredReminders();
+  const taskGroups = groupTasksByDate(filteredTasks);
 
   return (
-    <div 
-      className="min-h-screen p-8 pb-24"
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.2 }}
+      className="container mx-auto px-5 py-8 pb-24"
     >
-      <header className="mb-8 border-b pb-4 border-gray-200 dark:border-gray-800">
-        <h1 
-          className="text-2xl font-bold text-primary flex items-center"
-        >
-          <span>Reminders</span>
-        </h1>
-      </header>
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-center">
+          <Link to="/">
+            <Button variant="ghost" size="icon" className="mr-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+          </Link>
+          <h1 className="text-2xl font-bold">Reminders</h1>
+        </div>
+        <Link to="/add">
+          <Button variant="default" size="sm" className="gap-1">
+            <Plus className="h-4 w-4" />
+            Add Task
+          </Button>
+        </Link>
+      </div>
 
-      <div className="mb-6">
-        <div className="flex gap-3 overflow-x-auto pb-2">
-          {["all", "today", "upcoming", "overdue"].map((option) => (
-            <button
-              key={option}
-              onClick={() => setFilter(option as any)}
-              className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                filter === option
-                  ? "bg-accent text-accent-foreground shadow-sm"
-                  : "bg-secondary/50 text-secondary-foreground hover:bg-secondary"
-              }`}
-            >
-              {option.charAt(0).toUpperCase() + option.slice(1)}
-            </button>
-          ))}
+      <div className="mb-6 space-y-4">
+        {/* Search box */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          <Input
+            type="text"
+            placeholder="Search tasks..."
+            className="pl-10"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        
+        {/* Filters */}
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant={selectedFilter === "all" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedFilter("all")}
+          >
+            All
+          </Button>
+          <Button
+            variant={selectedFilter === "today" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedFilter("today")}
+          >
+            Today
+          </Button>
+          <Button
+            variant={selectedFilter === "tomorrow" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedFilter("tomorrow")}
+          >
+            Tomorrow
+          </Button>
+          <Button
+            variant={selectedFilter === "thisWeek" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedFilter("thisWeek")}
+          >
+            This Week
+          </Button>
+          <Button
+            variant={selectedFilter === "pending" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedFilter("pending")}
+          >
+            Pending
+          </Button>
+          <Button
+            variant={selectedFilter === "completed" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedFilter("completed")}
+          >
+            Completed
+          </Button>
         </div>
       </div>
 
-      <div className="space-y-4 max-w-3xl mx-auto">
-        {isLoading ? (
-          <div className="text-center py-12 text-muted-foreground">
-            Loading reminders...
-          </div>
-        ) : filteredReminders.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            No reminders found
-          </div>
-        ) : (
-          filteredReminders.map((reminder) => {
-            const status = getReminderStatus(reminder);
-            
-            return (
-              <div
-                key={reminder.id}
-                className={`p-5 rounded-lg border ${
-                  reminder.completed
-                    ? "border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/20"
-                    : status === "overdue"
-                    ? "border-red-200 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10"
-                    : status === "today"
-                    ? "border-amber-200 dark:border-amber-900/30 bg-amber-50/50 dark:bg-amber-900/10"
-                    : "border-green-200 dark:border-green-900/30 bg-green-50/50 dark:bg-green-900/10"
-                } backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300`}
-              >
-                <div className="flex items-start gap-4">
+      {isLoading ? (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Loading tasks...</p>
+        </div>
+      ) : filteredTasks.length === 0 ? (
+        <div className="text-center py-12 bg-gray-50/50 dark:bg-gray-800/20 rounded-lg">
+          {searchQuery || selectedFilter !== "all" ? (
+            <p className="text-muted-foreground">No tasks match your search or filter.</p>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-muted-foreground">You don't have any tasks yet.</p>
+              <Link to="/add">
+                <Button variant="default" size="sm" className="gap-1">
+                  <Plus className="h-4 w-4" />
+                  Create your first task
+                </Button>
+              </Link>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-8">
+          {Object.entries(taskGroups).map(([date, tasks]) => (
+            <div key={date} className="space-y-4">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                {formatDateHeading(date)}
+              </h2>
+              <div className="space-y-3">
+                {tasks.map(task => (
                   <div 
-                    onClick={() => toggleComplete(reminder.id, !reminder.completed)}
-                    className={`mt-0.5 flex-shrink-0 w-6 h-6 rounded-full cursor-pointer flex items-center justify-center transition-colors ${
-                      reminder.completed
-                        ? "bg-accent text-accent-foreground shadow-sm"
-                        : "border-2 border-gray-300 dark:border-gray-600 hover:border-accent"
-                    }`}
+                    key={task.id} 
+                    className={`p-4 rounded-lg border ${task.completed 
+                      ? "bg-gray-50/70 dark:bg-gray-800/30 border-gray-200 dark:border-gray-700" 
+                      : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm"}`}
                   >
-                    {reminder.completed && <Check className="w-3 h-3" />}
-                  </div>
-                  
-                  <div className="flex-1">
-                    <h3 className={`font-bold text-base ${reminder.completed ? "line-through text-muted-foreground" : ""}`}>
-                      {reminder.title}
-                    </h3>
-                    
-                    {reminder.description && (
-                      <p className={`text-sm mt-2 ${reminder.completed ? "line-through text-muted-foreground" : "text-muted-foreground"}`}>
-                        {reminder.description}
-                      </p>
-                    )}
-                    
-                    <div className="flex items-center gap-4 mt-3">
-                      <div className="flex items-center text-xs text-muted-foreground gap-1.5">
-                        <Calendar className="w-3.5 h-3.5" />
-                        <span>{format(reminder.date, "MMM d, yyyy")}</span>
+                    <div className="flex items-start gap-3">
+                      <button 
+                        onClick={() => toggleTaskCompletion(task.id, task.completed)}
+                        className="mt-0.5 flex-shrink-0 text-gray-400 hover:text-accent transition-colors"
+                      >
+                        {task.completed ? (
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                        ) : (
+                          <Circle className="h-5 w-5" />
+                        )}
+                      </button>
+                      
+                      <div className="flex-1 space-y-2">
+                        <div className={`flex items-start justify-between ${task.completed ? "text-gray-500 dark:text-gray-400" : ""}`}>
+                          <h3 className={`font-medium ${task.completed ? "line-through" : ""}`}>
+                            {task.title}
+                          </h3>
+                          {renderPriorityBadge(task.priority)}
+                        </div>
+                        
+                        {task.description && (
+                          <p className={`text-sm text-gray-600 dark:text-gray-400 ${task.completed ? "line-through opacity-70" : ""}`}>
+                            {task.description}
+                          </p>
+                        )}
+                        
+                        <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-3.5 w-3.5" />
+                            {format(new Date(task.due_date), "MMM d, yyyy")}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-3.5 w-3.5" />
+                            {task.due_time ? format(new Date(`2000-01-01T${task.due_time}`), "h:mm a") : "No time"}
+                          </div>
+                        </div>
                       </div>
-                      
-                      {status === "today" && !reminder.completed && (
-                        <div className="flex items-center text-xs text-amber-500 dark:text-amber-400 gap-1.5 font-medium">
-                          <Clock className="w-3.5 h-3.5" />
-                          <span>Today</span>
-                        </div>
-                      )}
-                      
-                      {status === "overdue" && (
-                        <div className="flex items-center text-xs text-red-500 dark:text-red-400 gap-1.5 font-medium">
-                          <Clock className="w-3.5 h-3.5" />
-                          <span>Overdue</span>
-                        </div>
-                      )}
                     </div>
                   </div>
-                </div>
+                ))}
               </div>
-            );
-          })
-        )}
-      </div>
-    </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </motion.div>
   );
 };
 
