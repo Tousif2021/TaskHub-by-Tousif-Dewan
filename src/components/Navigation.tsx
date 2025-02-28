@@ -17,7 +17,7 @@ const NavItem = ({
 }) => (
   <Link
     to={to}
-    className="relative flex items-center justify-center h-full py-3 flex-1"
+    className="relative flex items-center justify-center h-full flex-1"
   >
     <div 
       className={`
