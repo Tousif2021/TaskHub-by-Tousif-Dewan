@@ -34,6 +34,7 @@ interface Task {
   due_date: string;
   due_time: string;
   completed: boolean;
+  category: string;
 }
 
 const Reminders = () => {
@@ -91,7 +92,8 @@ const Reminders = () => {
       const query = searchQuery.toLowerCase();
       result = result.filter(task => 
         task.title.toLowerCase().includes(query) || 
-        (task.description && task.description.toLowerCase().includes(query))
+        (task.description && task.description.toLowerCase().includes(query)) ||
+        (task.category && task.category.toLowerCase().includes(query))
       );
     }
     
@@ -232,6 +234,24 @@ const Reminders = () => {
         return <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">Low</Badge>;
       default:
         return null;
+    }
+  };
+
+  // Render category badge
+  const renderCategoryBadge = (category: string) => {
+    switch (category) {
+      case "Work":
+        return <Badge className="bg-blue-100 text-blue-800">Work</Badge>;
+      case "Personal":
+        return <Badge className="bg-purple-100 text-purple-800">Personal</Badge>;
+      case "School":
+        return <Badge className="bg-amber-100 text-amber-800">School</Badge>;
+      case "Health":
+        return <Badge className="bg-green-100 text-green-800">Health</Badge>;
+      case "Shopping":
+        return <Badge className="bg-pink-100 text-pink-800">Shopping</Badge>;
+      default:
+        return <Badge className="bg-gray-100 text-gray-800">{category || "Other"}</Badge>;
     }
   };
 
@@ -403,6 +423,7 @@ const Reminders = () => {
                             {task.title}
                           </h3>
                           <div className="flex items-center gap-2">
+                            {renderCategoryBadge(task.category)}
                             {renderPriorityBadge(task.priority)}
                             
                             <DropdownMenu>
