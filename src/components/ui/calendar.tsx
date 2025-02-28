@@ -17,16 +17,16 @@ function Calendar({
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn("p-3", className)}
+      className={cn("p-3 bg-white dark:bg-gray-800 backdrop-blur-sm", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
         caption: "flex justify-center pt-1 relative items-center",
-        caption_label: "text-sm font-semibold text-gray-700 dark:text-gray-200",
+        caption_label: "text-sm font-semibold text-gray-800 dark:text-gray-100",
         nav: "space-x-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
-          "h-8 w-8 bg-transparent p-0 opacity-70 hover:opacity-100 hover:bg-accent/10 border border-gray-200 dark:border-gray-700"
+          "h-8 w-8 bg-transparent p-0 opacity-80 hover:opacity-100 hover:bg-accent/10 border border-gray-200 dark:border-gray-700"
         ),
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
@@ -38,12 +38,12 @@ function Calendar({
         cell: "h-10 w-10 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-10 w-10 p-0 font-normal aria-selected:opacity-100 hover:bg-accent/15"
+          "h-10 w-10 p-0 font-normal aria-selected:opacity-100 hover:bg-accent/15 transition-colors"
         ),
         day_range_end: "day-range-end",
         day_selected:
-          "bg-accent/80 text-white hover:bg-accent hover:text-white focus:bg-accent focus:text-white",
-        day_today: "bg-accent/10 text-accent font-semibold",
+          "bg-accent text-white hover:bg-accent hover:text-white focus:bg-accent focus:text-white shadow-md",
+        day_today: "bg-accent/10 text-accent font-semibold ring-1 ring-accent",
         day_outside:
           "day-outside text-muted-foreground opacity-50 aria-selected:bg-accent/80 aria-selected:text-white aria-selected:opacity-70",
         day_disabled: "text-muted-foreground opacity-50",
