@@ -39,28 +39,27 @@ const Index = () => {
         >
           Task Manager
         </h1>
-        <Link to="/add">
-          <Button variant="ghost">Add Task</Button>
-        </Link>
+        {/* Removed the Add Task button from here */}
       </header>
 
       <div
         className="grid grid-cols-1 md:grid-cols-2 gap-4"
       >
+        {/* New Add Task card as the first item */}
+        <MenuItem 
+          to="/add"
+          icon={Plus}
+          title="Add Task"
+          description="Create a new task"
+          color="bg-green-500/10 text-green-600 dark:text-green-400"
+        />
+
         <MenuItem 
           to="/files"
           icon={FolderDot}
           title="Files"
           description="Access your documents"
           color="bg-blue-500/10 text-blue-600 dark:text-blue-400"
-        />
-
-        <MenuItem 
-          to="/tasks"
-          icon={Plus}
-          title="Task List"
-          description="View all your tasks"
-          color="bg-green-500/10 text-green-600 dark:text-green-400"
         />
 
         <MenuItem 
