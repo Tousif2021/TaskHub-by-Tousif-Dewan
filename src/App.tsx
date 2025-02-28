@@ -1,11 +1,4 @@
-import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Camera, Edit, Moon, Sun, LogOut } from "lucide-react";
-import { useTheme } from "@/components/theme-provider"; 
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
-
-//App.tsx
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,15 +7,17 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider, ProtectedRoute } from "@/components/auth-provider";
 import Index from "./pages/Index";
 import Files from "./pages/Files";
 import AddTask from "./pages/AddTask";
 import TaskPreview from "./pages/TaskPreview";
 import Reminders from "./pages/Reminders";
 import Profile from "./pages/Profile";
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
-import "./App.css";
 import Navigation from "./components/Navigation";
+import "./App.css";
 
 const queryClient = new QueryClient();
 
@@ -33,12 +28,55 @@ const AnimatedRoutes = () => {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<Index />} />
-        <Route path="/files" element={<Files />} />
-        <Route path="/add" element={<AddTask />} />
-        <Route path="/tasks" element={<TaskPreview />} />
-        <Route path="/reminders" element={<Reminders />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route 
+          path="/" 
+          element={
+            <ProtectedRoute>
+              <Index />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/files" 
+          element={
+            <ProtectedRoute>
+              <Files />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/add" 
+          element={
+            <ProtectedRoute>
+              <AddTask />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/tasks" 
+          element={
+            <ProtectedRoute>
+              <TaskPreview />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/reminders" 
+          element={
+            <ProtectedRoute>
+              <Reminders />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/profile" 
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          } 
+        />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
@@ -64,8 +102,10 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Navigation />
-            <AnimatedRoutes />
+            <AuthProvider>
+              <Navigation />
+              <AnimatedRoutes />
+            </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>

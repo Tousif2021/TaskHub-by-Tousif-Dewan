@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 import { Bell, FolderDot, Plus, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Navigation from "@/components/Navigation";
+import { useAuth } from "@/components/auth-provider";
 
 interface MenuItemProps {
   to: string;
@@ -29,6 +29,8 @@ const MenuItem = ({ to, icon: Icon, title, description, color }: MenuItemProps) 
 );
 
 const Index = () => {
+  const { user } = useAuth();
+
   return (
     <div 
       className="min-h-screen p-6 pb-20"
@@ -39,7 +41,14 @@ const Index = () => {
         >
           Task Manager
         </h1>
-        {/* Removed the Add Task button from here */}
+        
+        {!user && (
+          <Link to="/auth">
+            <Button variant="default" size="sm">
+              Login / Sign Up
+            </Button>
+          </Link>
+        )}
       </header>
 
       <div

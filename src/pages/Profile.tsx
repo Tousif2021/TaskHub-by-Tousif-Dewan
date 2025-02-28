@@ -1,8 +1,9 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Camera, Edit, Moon, Sun, LogOut, Check, X } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
+import { useAuth } from "@/components/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
@@ -10,24 +11,48 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import Navigation from "@/components/Navigation";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const { toast } = useToast();
+  const { user, profile, signOut } = useAuth();
 
   // Profile data state
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
-    fullName: "Jane Doe",
-    email: "jane.doe@example.com",
-    organization: "ABC Corporation",
-    joined: "April 2023"
+    fullName: "",
+    email: "",
+    organization: "",
+    joinedAt: ""
   });
   
   // Temporary state for editing
   const [editData, setEditData] = useState({...profileData});
+
+  // Update profile data when auth profile loads
+  useEffect(() => {
+    if (profile && user) {
+      const formattedDate = new Date(profile.joined_at || user.created_at).toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric'
+      });
+      
+      setProfileData({
+        fullName: profile.full_name || 'Anonymous User',
+        email: user.email || '',
+        organization: profile.organization || '',
+        joinedAt: formattedDate
+      });
+      
+      setEditData({
+        fullName: profile.full_name || 'Anonymous User',
+        email: user.email || '',
+        organization: profile.organization || '',
+        joinedAt: formattedDate
+      });
+    }
+  }, [profile, user]);
 
   // Handle edit toggle
   const handleEditToggle = () => {
@@ -39,13 +64,33 @@ const Profile = () => {
   };
 
   // Handle save profile
-  const handleSaveProfile = () => {
-    setProfileData({...editData});
-    setIsEditing(false);
-    toast({
-      title: "Profile updated",
-      description: "Your profile has been successfully updated.",
-    });
+  const handleSaveProfile = async () => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: editData.fullName,
+          organization: editData.organization,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user?.id);
+      
+      if (error) throw error;
+      
+      setProfileData({...editData});
+      setIsEditing(false);
+      
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been successfully updated.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Update failed",
+        description: error.message || "There was an error updating your profile.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Handle input change
@@ -57,22 +102,15 @@ const Profile = () => {
     }));
   };
 
-  // Handle sign out
-  const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast({
-        title: "Signed out successfully",
-        description: "You have been signed out of your account.",
-      });
-      navigate("/");
-    } catch (error) {
-      toast({
-        title: "Sign out failed",
-        description: "There was an error signing out. Please try again.",
-        variant: "destructive",
-      });
-    }
+  // Get user initials for avatar fallback
+  const getInitials = () => {
+    if (!profileData.fullName) return "U";
+    return profileData.fullName
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
   };
 
   return (
@@ -89,8 +127,8 @@ const Profile = () => {
         <div className="flex flex-col items-center space-y-3 mb-8">
           <div className="relative">
             <Avatar className="h-24 w-24">
-              <AvatarImage src="https://github.com/shadcn.png" alt="Profile picture" />
-              <AvatarFallback>JD</AvatarFallback>
+              <AvatarImage src={profile?.avatar_url || ""} alt="Profile picture" />
+              <AvatarFallback>{getInitials()}</AvatarFallback>
             </Avatar>
             <Button 
               variant="secondary" 
@@ -102,7 +140,7 @@ const Profile = () => {
           </div>
           <div className="text-center">
             <h1 className="text-xl font-bold">{profileData.fullName}</h1>
-            <p className="text-sm text-muted-foreground">Product Designer</p>
+            <p className="text-sm text-muted-foreground">Task Manager User</p>
           </div>
           {isEditing ? (
             <div className="flex gap-2">
@@ -155,10 +193,11 @@ const Profile = () => {
                     <Input 
                       id="email" 
                       name="email" 
-                      value={editData.email} 
-                      onChange={handleInputChange}
-                      className="mt-1"
+                      value={editData.email}
+                      disabled={true}
+                      className="mt-1 bg-muted"
                     />
+                    <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
                   </div>
                   <div>
                     <Label htmlFor="organization" className="text-sm font-medium mb-1">Organization</Label>
@@ -173,7 +212,7 @@ const Profile = () => {
                   </div>
                   <div>
                     <p className="text-sm font-medium mb-1">Joined</p>
-                    <p className="text-primary">{profileData.joined}</p>
+                    <p className="text-primary">{profileData.joinedAt}</p>
                   </div>
                 </>
               ) : (
@@ -188,11 +227,11 @@ const Profile = () => {
                   </div>
                   <div>
                     <p className="text-sm font-medium mb-1">Organization</p>
-                    <p className="text-primary">{profileData.organization}</p>
+                    <p className="text-primary">{profileData.organization || "Not specified"}</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium mb-1">Joined</p>
-                    <p className="text-primary">{profileData.joined}</p>
+                    <p className="text-primary">{profileData.joinedAt}</p>
                   </div>
                 </>
               )}
@@ -203,7 +242,7 @@ const Profile = () => {
         <Button 
           variant="destructive" 
           className="w-full"
-          onClick={handleSignOut}
+          onClick={signOut}
         >
           <LogOut className="h-4 w-4 mr-2" />
           Sign Out
