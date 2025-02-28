@@ -21,14 +21,14 @@ const NavItem = ({
     to={to}
     className={`flex flex-col items-center gap-1 transition-all duration-300 ${
       active 
-        ? "text-accent font-medium scale-110" 
-        : "text-primary/60 hover:text-accent hover:scale-105"
+        ? "text-[#0EA5E9] font-medium" 
+        : "text-primary/60 hover:text-[#0EA5E9]"
     }`}
   >
-    <div className={`w-7 h-7 flex items-center justify-center rounded-full ${
-      active ? 'bg-accent/10 shadow-sm transform-gpu transition-transform' : ''
+    <div className={`w-7 h-7 flex items-center justify-center ${
+      active ? 'bg-[#F1F1F1] dark:bg-slate-800 rounded-md' : ''
     }`}>
-      <Icon className={`w-5 h-5 ${active ? 'fill-current' : ''}`} />
+      <Icon className="w-5 h-5" />
     </div>
     <span 
       className={`text-[10px] font-medium ${active ? 'opacity-100' : 'opacity-80'}`}
