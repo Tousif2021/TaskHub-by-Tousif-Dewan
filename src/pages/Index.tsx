@@ -155,7 +155,7 @@ const Index = () => {
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
               Welcome back, {firstName || "User"}!
             </h2>
-            <p className="text-accent dark:text-accent/80 text-sm font-medium mt-0.5">{quote}</p>
+            <p className="text-[#1e40af] dark:text-[#3b82f6] text-sm font-medium mt-0.5">{quote}</p>
             
             <div className="flex flex-col sm:flex-row gap-3 mt-4">
               <div className="flex-1 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-900/30">
@@ -210,7 +210,7 @@ const Index = () => {
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
               Welcome back, {firstName || "User"}!
             </h2>
-            <p className="text-accent dark:text-accent/80 text-sm font-medium mt-0.5">{quote}</p>
+            <p className="text-[#1e40af] dark:text-[#3b82f6] text-sm font-medium mt-0.5">{quote}</p>
             
             <div className="flex flex-col sm:flex-row gap-3 mt-4">
               <div className="flex-1 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg animate-pulse">
