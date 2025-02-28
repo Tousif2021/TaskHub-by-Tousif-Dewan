@@ -40,10 +40,10 @@ const TaskPreview = () => {
   const printRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  // This fixes the printing functionality by properly typing it
+  // Properly configure the print hook
   const handlePrint = useReactToPrint({
     documentTitle: "Task List",
-    // Using the correct property according to TypeScript definitions
+    // Use contentRef instead of content
     contentRef: printRef,
     onAfterPrint: () => {
       console.log("Print completed successfully");

@@ -19,6 +19,16 @@ import NotFound from "./pages/NotFound";
 import Navigation from "./components/Navigation";
 import "./App.css";
 
+// Add type declaration to make TypeScript recognize Capacitor
+declare global {
+  interface Window {
+    Capacitor?: {
+      isNative?: boolean;
+      platform?: string;
+    };
+  }
+}
+
 // Create a new queryClient instance with optimized settings
 const queryClient = new QueryClient({
   defaultOptions: {
