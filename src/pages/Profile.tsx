@@ -251,7 +251,7 @@ const Profile = () => {
           </Button>
         </div>
 
-        <div className="flex flex-col items-center mt-12 text-center pt-6 border-t border-gray-200 dark:border-gray-800 max-w-xl mx-auto">
+        <div className="flex flex-col items-center mt-6 text-center pt-4 border-t border-gray-200 dark:border-gray-800 max-w-xl mx-auto">
           <div className="font-extrabold text-lg">
             <span className="text-[#1e40af]">Task</span>
             <span className="text-primary">Hub</span>
