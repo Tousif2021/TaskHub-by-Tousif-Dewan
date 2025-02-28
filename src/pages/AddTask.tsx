@@ -178,17 +178,22 @@ const AddTask = () => {
                   !date && "text-muted-foreground"
                 )}
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
+                <CalendarIcon className="mr-2 h-4 w-4 text-accent" />
                 {date ? format(date, "PPP") : <span>Pick a date</span>}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 border-gray-200 dark:border-gray-700 shadow-lg">
+            <PopoverContent className="w-auto p-0 border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
+              <div className="p-3 bg-gradient-to-br from-accent/5 to-accent/10 rounded-t-lg border-b border-accent/10">
+                <h3 className="font-medium text-center text-accent">
+                  {date ? format(date, "MMMM yyyy") : "Select Date"}
+                </h3>
+              </div>
               <Calendar
                 mode="single"
                 selected={date}
                 onSelect={setDate}
                 initialFocus
-                className="rounded-md"
+                className="rounded-b-lg"
               />
             </PopoverContent>
           </Popover>
