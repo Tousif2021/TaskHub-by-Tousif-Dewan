@@ -1,13 +1,14 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { FileIcon, FolderIcon, ChevronLeft, Clock, Download, Trash2, Eye } from "lucide-react";
+import { FileIcon, FolderIcon, ChevronLeft, Clock, Download, Trash2, Eye, Upload, Camera, Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 
 interface FileItem {
@@ -23,6 +24,11 @@ const Files = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [previewFile, setPreviewFile] = useState<{url: string, name: string, type: string} | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [fileDescription, setFileDescription] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   
   const { data: files = [], isLoading, refetch } = useQuery({
     queryKey: ["files"],
@@ -43,6 +49,60 @@ const Files = () => {
         file.type.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : files;
+
+  const handleFileUpload = async (file: File) => {
+    try {
+      setIsUploading(true);
+      
+      // Generate a unique file path
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2, 15)}_${new Date().getTime()}.${fileExt}`;
+      const filePath = `${fileName}`;
+      
+      // Upload file to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('files')
+        .upload(filePath, file);
+        
+      if (uploadError) throw uploadError;
+      
+      // Insert file metadata into the database
+      const { error: insertError } = await supabase
+        .from('files')
+        .insert({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          path: filePath
+        });
+        
+      if (insertError) throw insertError;
+      
+      setUploadDialogOpen(false);
+      setFileDescription("");
+      toast.success("File uploaded successfully!");
+      refetch();
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Failed to upload file");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleFileSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+  };
+
+  const handleCameraCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+  };
 
   const downloadFile = async (file: FileItem) => {
     try {
@@ -98,16 +158,24 @@ const Files = () => {
  
   return (
     <div className="min-h-screen p-6 pb-20">
-      <header className="mb-6 flex items-center">
+      <header className="mb-6 flex items-center justify-between">
+        <div className="flex items-center">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => navigate(-1)}
+            className="mr-2"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-2xl font-bold text-primary">Files</h1>
+        </div>
         <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => navigate(-1)}
-          className="mr-2"
+          onClick={() => setUploadDialogOpen(true)}
+          className="bg-[#1e40af] hover:bg-[#1e3a8a] text-white"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <Plus className="h-4 w-4 mr-2" /> Add File
         </Button>
-        <h1 className="text-2xl font-bold text-primary">Files</h1>
       </header>
       
       <div className="mb-6">
@@ -160,6 +228,68 @@ const Files = () => {
         </div>
       </div>
       
+      {/* File Upload Dialog */}
+      <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Upload File</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <Button 
+                variant="outline" 
+                onClick={() => fileInputRef.current?.click()}
+                className="flex flex-col items-center justify-center h-24 p-4"
+                disabled={isUploading}
+              >
+                <input 
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileSelection}
+                  className="hidden"
+                  accept="image/*,application/pdf,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                />
+                <Upload className="h-8 w-8 mb-2 text-[#1e40af]" />
+                <span className="text-sm">Upload File</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => cameraInputRef.current?.click()}
+                className="flex flex-col items-center justify-center h-24 p-4"
+                disabled={isUploading}
+              >
+                <input 
+                  type="file"
+                  ref={cameraInputRef}
+                  onChange={handleCameraCapture}
+                  className="hidden"
+                  accept="image/*"
+                  capture="environment"
+                />
+                <Camera className="h-8 w-8 mb-2 text-[#1e40af]" />
+                <span className="text-sm">Take Photo</span>
+              </Button>
+            </div>
+            <Textarea
+              placeholder="Add a description (optional)"
+              value={fileDescription}
+              onChange={(e) => setFileDescription(e.target.value)}
+              disabled={isUploading}
+            />
+          </div>
+          <DialogFooter>
+            <Button 
+              variant="ghost" 
+              onClick={() => setUploadDialogOpen(false)}
+              disabled={isUploading}
+            >
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* File Preview Dialog */}
       <Dialog open={!!previewFile} onOpenChange={() => setPreviewFile(null)}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
@@ -171,6 +301,12 @@ const Files = () => {
                 src={previewFile.url} 
                 alt={previewFile.name} 
                 className="max-h-full max-w-full object-contain"
+              />
+            ) : previewFile?.type.startsWith('application/pdf') ? (
+              <iframe
+                src={`${previewFile.url}#toolbar=0`}
+                className="w-full h-[500px]"
+                title={previewFile.name}
               />
             ) : (
               <div className="text-center p-8">
