@@ -22,9 +22,10 @@ const TaskPreview = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const printRef = useRef<HTMLDivElement>(null);
 
-  // Fix: The content property needs to be provided during function call, not as an option
+  // Correctly setup useReactToPrint with the content property in its options
   const handlePrint = useReactToPrint({
     documentTitle: "Task List",
+    content: () => printRef.current,
   });
 
   const { data: tasks = [], isLoading } = useQuery({
@@ -83,11 +84,11 @@ const TaskPreview = () => {
           <h1 className="text-2xl font-bold">Task List</h1>
         </div>
         <div className="flex gap-2">
-          {/* Fix: Pass the printRef when the function is called */}
+          {/* Simply call handlePrint with no arguments */}
           <Button 
             variant="outline" 
             size="icon" 
-            onClick={() => handlePrint(undefined, () => printRef.current)}
+            onClick={handlePrint}
           >
             <Printer className="h-5 w-5" />
           </Button>
