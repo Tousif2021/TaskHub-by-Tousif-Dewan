@@ -19,6 +19,21 @@ interface Task {
   category: string;
 }
 
+// Define the task type as it comes from the database
+interface TaskFromDB {
+  id: string;
+  title: string;
+  description: string | null;
+  due_date: string;
+  due_time: string;
+  priority: string;
+  completed: boolean | null;
+  user_id: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  category: string | null;
+}
+
 const TaskPreview = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const printRef = useRef<HTMLDivElement>(null);
@@ -46,7 +61,7 @@ const TaskPreview = () => {
 
       if (error) throw error;
       
-      return (data || []).map((task) => ({
+      return (data || []).map((task: TaskFromDB) => ({
         id: task.id,
         title: task.title,
         details: task.description || "",
