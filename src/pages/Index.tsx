@@ -16,12 +16,12 @@ const MenuItem = ({ to, icon: Icon, title, description, color }: MenuItemProps) 
   <div>
     <Link to={to}>
       <div 
-        className="p-6 rounded-lg border border-gray-100 dark:border-gray-800 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-md transition-all duration-300"
+        className="p-5 rounded-lg border border-gray-100 dark:border-gray-800 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm hover:shadow-md transition-all duration-300 hover:translate-y-[-2px] h-full"
       >
-        <div className={`w-12 h-12 rounded-full ${color} flex items-center justify-center mb-4`}>
-          <Icon className="w-6 h-6" />
+        <div className={`w-12 h-12 rounded-full ${color} flex items-center justify-center mb-3`}>
+          <Icon className="w-5 h-5" />
         </div>
-        <h3 className="text-lg font-semibold mb-1">{title}</h3>
+        <h3 className="text-lg font-bold mb-1">{title}</h3>
         <p className="text-sm text-muted-foreground">{description}</p>
       </div>
     </Link>
@@ -33,18 +33,18 @@ const Index = () => {
 
   return (
     <div 
-      className="min-h-screen p-6 pb-20"
+      className="min-h-screen p-8 pb-24"
     >
-      <header className="mb-8 flex justify-between items-center">
+      <header className="mb-10 flex justify-between items-center">
         <h1 
-          className="text-2xl font-bold text-primary"
+          className="text-2xl font-extrabold text-primary"
         >
           Task Manager
         </h1>
         
         {!user && (
           <Link to="/auth">
-            <Button variant="default" size="sm">
+            <Button variant="default" size="sm" className="hover:scale-105 transition-transform">
               Login / Sign Up
             </Button>
           </Link>
@@ -52,15 +52,14 @@ const Index = () => {
       </header>
 
       <div
-        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto"
       >
-        {/* New Add Task card as the first item */}
         <MenuItem 
           to="/add"
           icon={Plus}
           title="Add Task"
           description="Create a new task"
-          color="bg-green-500/10 text-green-600 dark:text-green-400"
+          color="bg-green-500/15 text-green-600 dark:text-green-400"
         />
 
         <MenuItem 
@@ -68,7 +67,7 @@ const Index = () => {
           icon={FolderDot}
           title="Files"
           description="Access your documents"
-          color="bg-blue-500/10 text-blue-600 dark:text-blue-400"
+          color="bg-blue-500/15 text-blue-600 dark:text-blue-400"
         />
 
         <MenuItem 
@@ -76,7 +75,7 @@ const Index = () => {
           icon={Bell}
           title="Reminders"
           description="Manage your notifications"
-          color="bg-amber-500/10 text-amber-600 dark:text-amber-400"
+          color="bg-amber-500/15 text-amber-600 dark:text-amber-400"
         />
 
         <MenuItem 
@@ -84,7 +83,7 @@ const Index = () => {
           icon={User}
           title="Profile"
           description="View your account"
-          color="bg-purple-500/10 text-purple-600 dark:text-purple-400"
+          color="bg-purple-500/15 text-purple-600 dark:text-purple-400"
         />
       </div>
     </div>

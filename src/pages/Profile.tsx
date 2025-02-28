@@ -114,26 +114,27 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen pb-20">
-      <div className="p-4 space-y-6">
+    <div className="min-h-screen pb-24 bg-white/50 dark:bg-slate-900/50">
+      <div className="p-8 space-y-8">
         <Button 
           variant="ghost" 
           size="icon" 
           onClick={() => navigate(-1)}
+          className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
 
-        <div className="flex flex-col items-center space-y-3 mb-8">
+        <div className="flex flex-col items-center space-y-4 mb-8">
           <div className="relative">
-            <Avatar className="h-24 w-24">
+            <Avatar className="h-28 w-28 border-2 border-white dark:border-gray-800 shadow-md">
               <AvatarImage src={profile?.avatar_url || ""} alt="Profile picture" />
-              <AvatarFallback>{getInitials()}</AvatarFallback>
+              <AvatarFallback className="text-xl bg-accent/10 text-accent">{getInitials()}</AvatarFallback>
             </Avatar>
             <Button 
               variant="secondary" 
               size="icon" 
-              className="absolute bottom-0 right-0 rounded-full h-8 w-8"
+              className="absolute bottom-0 right-0 rounded-full h-9 w-9 shadow-sm hover:scale-105 transition-transform"
             >
               <Camera className="h-4 w-4" />
             </Button>
@@ -143,95 +144,95 @@ const Profile = () => {
             <p className="text-sm text-muted-foreground">Task Manager User</p>
           </div>
           {isEditing ? (
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="gap-1" onClick={handleSaveProfile}>
+            <div className="flex gap-3">
+              <Button variant="outline" size="sm" className="gap-1 hover:bg-accent hover:text-white transition-colors" onClick={handleSaveProfile}>
                 <Check className="h-4 w-4" />
                 Save
               </Button>
-              <Button variant="outline" size="sm" className="gap-1" onClick={handleEditToggle}>
+              <Button variant="outline" size="sm" className="gap-1 hover:bg-red-500 hover:text-white transition-colors" onClick={handleEditToggle}>
                 <X className="h-4 w-4" />
                 Cancel
               </Button>
             </div>
           ) : (
-            <Button variant="outline" size="sm" className="gap-1" onClick={handleEditToggle}>
+            <Button variant="outline" size="sm" className="gap-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" onClick={handleEditToggle}>
               <Edit className="h-4 w-4" />
               Edit Profile
             </Button>
           )}
         </div>
 
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+        <div className="space-y-8 max-w-xl mx-auto">
+          <div className="flex items-center justify-between p-4 rounded-lg bg-white/80 dark:bg-slate-800/80 shadow-sm border border-gray-100 dark:border-gray-800">
+            <div className="flex items-center gap-3">
               {theme === 'dark' ? (
-                <Moon className="h-5 w-5" />
+                <Moon className="h-5 w-5 text-accent" />
               ) : (
-                <Sun className="h-5 w-5" />
+                <Sun className="h-5 w-5 text-amber-500" />
               )}
-              <span>Dark Mode</span>
+              <span className="font-medium">Dark Mode</span>
             </div>
             <Switch checked={theme === 'dark'} onCheckedChange={toggleTheme} />
           </div>
 
-          <div className="rounded-lg border bg-card p-4">
-            <div className="space-y-4">
+          <div className="rounded-lg border border-gray-100 dark:border-gray-800 bg-white/80 dark:bg-slate-800/80 p-6 shadow-sm">
+            <div className="space-y-5">
               {isEditing ? (
                 <>
                   <div>
-                    <Label htmlFor="fullName" className="text-sm font-medium mb-1">Full Name</Label>
+                    <Label htmlFor="fullName" className="text-sm font-medium mb-1.5 block">Full Name</Label>
                     <Input 
                       id="fullName" 
                       name="fullName" 
                       value={editData.fullName} 
                       onChange={handleInputChange}
-                      className="mt-1"
+                      className="border-gray-200 dark:border-gray-700 h-11 focus:ring-2 focus:ring-accent/20"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="email" className="text-sm font-medium mb-1">Email</Label>
+                    <Label htmlFor="email" className="text-sm font-medium mb-1.5 block">Email</Label>
                     <Input 
                       id="email" 
                       name="email" 
                       value={editData.email}
                       disabled={true}
-                      className="mt-1 bg-muted"
+                      className="bg-muted border-gray-200 dark:border-gray-700 h-11"
                     />
                     <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
                   </div>
                   <div>
-                    <Label htmlFor="organization" className="text-sm font-medium mb-1">Organization</Label>
+                    <Label htmlFor="organization" className="text-sm font-medium mb-1.5 block">Organization</Label>
                     <Input 
                       id="organization" 
                       name="organization" 
                       value={editData.organization} 
                       onChange={handleInputChange}
                       placeholder="Enter your school or organization"
-                      className="mt-1"
+                      className="border-gray-200 dark:border-gray-700 h-11 focus:ring-2 focus:ring-accent/20"
                     />
                   </div>
                   <div>
-                    <p className="text-sm font-medium mb-1">Joined</p>
-                    <p className="text-primary">{profileData.joinedAt}</p>
+                    <p className="text-sm font-medium mb-1.5">Joined</p>
+                    <p className="text-primary bg-gray-50 dark:bg-gray-800/50 p-2 rounded">{profileData.joinedAt}</p>
                   </div>
                 </>
               ) : (
                 <>
                   <div>
-                    <p className="text-sm font-medium mb-1">Full Name</p>
-                    <p className="text-primary">{profileData.fullName}</p>
+                    <p className="text-sm font-medium mb-1.5">Full Name</p>
+                    <p className="text-primary bg-gray-50 dark:bg-gray-800/50 p-2 rounded">{profileData.fullName}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium mb-1">Email</p>
-                    <p className="text-primary">{profileData.email}</p>
+                    <p className="text-sm font-medium mb-1.5">Email</p>
+                    <p className="text-primary bg-gray-50 dark:bg-gray-800/50 p-2 rounded">{profileData.email}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium mb-1">Organization</p>
-                    <p className="text-primary">{profileData.organization || "Not specified"}</p>
+                    <p className="text-sm font-medium mb-1.5">Organization</p>
+                    <p className="text-primary bg-gray-50 dark:bg-gray-800/50 p-2 rounded">{profileData.organization || "Not specified"}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium mb-1">Joined</p>
-                    <p className="text-primary">{profileData.joinedAt}</p>
+                    <p className="text-sm font-medium mb-1.5">Joined</p>
+                    <p className="text-primary bg-gray-50 dark:bg-gray-800/50 p-2 rounded">{profileData.joinedAt}</p>
                   </div>
                 </>
               )}
@@ -239,14 +240,16 @@ const Profile = () => {
           </div>
         </div>
 
-        <Button 
-          variant="destructive" 
-          className="w-full"
-          onClick={signOut}
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          Sign Out
-        </Button>
+        <div className="max-w-xl mx-auto pt-4">
+          <Button 
+            variant="destructive" 
+            className="w-full h-11 hover:bg-red-600 hover:scale-[1.01] transition-all font-medium"
+            onClick={signOut}
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign Out
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -77,26 +77,26 @@ const Reminders = () => {
 
   return (
     <div 
-      className="min-h-screen p-6 pb-20"
+      className="min-h-screen p-8 pb-24"
     >
-      <header className="mb-8 border-b pb-4">
+      <header className="mb-8 border-b pb-4 border-gray-200 dark:border-gray-800">
         <h1 
           className="text-2xl font-bold text-primary flex items-center"
         >
-          <span className="ml-2">Reminders</span>
+          <span>Reminders</span>
         </h1>
       </header>
 
       <div className="mb-6">
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex gap-3 overflow-x-auto pb-2">
           {["all", "today", "upcoming", "overdue"].map((option) => (
             <button
               key={option}
               onClick={() => setFilter(option as any)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+              className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
                 filter === option
-                  ? "bg-accent text-accent-foreground"
-                  : "bg-secondary/50 text-secondary-foreground hover:bg-secondary/80"
+                  ? "bg-accent text-accent-foreground shadow-sm"
+                  : "bg-secondary/50 text-secondary-foreground hover:bg-secondary"
               }`}
             >
               {option.charAt(0).toUpperCase() + option.slice(1)}
@@ -105,13 +105,13 @@ const Reminders = () => {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 max-w-3xl mx-auto">
         {isLoading ? (
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-12 text-muted-foreground">
             Loading reminders...
           </div>
         ) : filteredReminders.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-12 text-muted-foreground">
             No reminders found
           </div>
         ) : (
@@ -121,7 +121,7 @@ const Reminders = () => {
             return (
               <div
                 key={reminder.id}
-                className={`p-4 rounded-lg border ${
+                className={`p-5 rounded-lg border ${
                   reminder.completed
                     ? "border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/20"
                     : status === "overdue"
@@ -129,47 +129,47 @@ const Reminders = () => {
                     : status === "today"
                     ? "border-amber-200 dark:border-amber-900/30 bg-amber-50/50 dark:bg-amber-900/10"
                     : "border-green-200 dark:border-green-900/30 bg-green-50/50 dark:bg-green-900/10"
-                } backdrop-blur-sm`}
+                } backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300`}
               >
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-4">
                   <div 
                     onClick={() => toggleComplete(reminder.id, !reminder.completed)}
-                    className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full cursor-pointer flex items-center justify-center ${
+                    className={`mt-0.5 flex-shrink-0 w-6 h-6 rounded-full cursor-pointer flex items-center justify-center transition-colors ${
                       reminder.completed
-                        ? "bg-accent text-accent-foreground"
-                        : "border-2 border-gray-300 dark:border-gray-600"
+                        ? "bg-accent text-accent-foreground shadow-sm"
+                        : "border-2 border-gray-300 dark:border-gray-600 hover:border-accent"
                     }`}
                   >
                     {reminder.completed && <Check className="w-3 h-3" />}
                   </div>
                   
                   <div className="flex-1">
-                    <h3 className={`font-medium ${reminder.completed ? "line-through text-muted-foreground" : ""}`}>
+                    <h3 className={`font-bold text-base ${reminder.completed ? "line-through text-muted-foreground" : ""}`}>
                       {reminder.title}
                     </h3>
                     
                     {reminder.description && (
-                      <p className={`text-sm mt-1 ${reminder.completed ? "line-through text-muted-foreground" : "text-muted-foreground"}`}>
+                      <p className={`text-sm mt-2 ${reminder.completed ? "line-through text-muted-foreground" : "text-muted-foreground"}`}>
                         {reminder.description}
                       </p>
                     )}
                     
-                    <div className="flex items-center gap-4 mt-2">
-                      <div className="flex items-center text-xs text-muted-foreground gap-1">
-                        <Calendar className="w-3 h-3" />
+                    <div className="flex items-center gap-4 mt-3">
+                      <div className="flex items-center text-xs text-muted-foreground gap-1.5">
+                        <Calendar className="w-3.5 h-3.5" />
                         <span>{format(reminder.date, "MMM d, yyyy")}</span>
                       </div>
                       
                       {status === "today" && !reminder.completed && (
-                        <div className="flex items-center text-xs text-amber-500 dark:text-amber-400 gap-1">
-                          <Clock className="w-3 h-3" />
+                        <div className="flex items-center text-xs text-amber-500 dark:text-amber-400 gap-1.5 font-medium">
+                          <Clock className="w-3.5 h-3.5" />
                           <span>Today</span>
                         </div>
                       )}
                       
                       {status === "overdue" && (
-                        <div className="flex items-center text-xs text-red-500 dark:text-red-400 gap-1">
-                          <Clock className="w-3 h-3" />
+                        <div className="flex items-center text-xs text-red-500 dark:text-red-400 gap-1.5 font-medium">
+                          <Clock className="w-3.5 h-3.5" />
                           <span>Overdue</span>
                         </div>
                       )}
@@ -181,8 +181,6 @@ const Reminders = () => {
           })
         )}
       </div>
-
-      <Navigation />
     </div>
   );
 };

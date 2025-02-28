@@ -63,13 +63,13 @@ const TaskPreview = () => {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "high":
-        return "bg-red-100 text-red-800 border-red-300";
+        return "bg-red-100 text-red-800 border-red-300 font-medium";
       case "medium":
-        return "bg-yellow-100 text-yellow-800 border-yellow-300";
+        return "bg-yellow-100 text-yellow-800 border-yellow-300 font-medium";
       case "low":
-        return "bg-green-100 text-green-800 border-green-300";
+        return "bg-green-100 text-green-800 border-green-300 font-medium";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-300";
+        return "bg-gray-100 text-gray-800 border-gray-300 font-medium";
     }
   };
 
@@ -79,12 +79,12 @@ const TaskPreview = () => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.2 }}
-      className="container mx-auto px-4 py-6 pb-20"
+      className="container mx-auto px-5 py-8 pb-24"
     >
       <div className="mb-6 flex justify-between items-center">
         <div className="flex items-center">
           <Link to="/">
-            <Button variant="ghost" size="icon" className="mr-2">
+            <Button variant="ghost" size="icon" className="mr-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
               <ChevronLeft className="h-5 w-5" />
             </Button>
           </Link>
@@ -95,49 +95,50 @@ const TaskPreview = () => {
             variant="outline" 
             size="icon" 
             onClick={handlePrintClick}
+            className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <Printer className="h-5 w-5" />
           </Button>
         </div>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-6">
         <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
             placeholder="Search tasks..."
-            className="pl-8"
+            className="pl-10 h-12 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-accent/20"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
 
-      <div ref={printRef} className="space-y-4 mt-6">
+      <div ref={printRef} className="space-y-4 mt-6 max-w-3xl mx-auto">
         {isLoading ? (
-          <div className="text-center py-10 text-muted-foreground">
+          <div className="text-center py-12 text-muted-foreground">
             Loading tasks...
           </div>
         ) : filteredTasks.length === 0 ? (
-          <div className="text-center py-10 text-muted-foreground">
+          <div className="text-center py-12 text-muted-foreground">
             No tasks found. Try a different search term.
           </div>
         ) : (
           filteredTasks.map((task) => (
             <div 
               key={task.id} 
-              className="p-4 border rounded-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-md transition-shadow"
+              className="p-5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm hover:shadow-md transition-all duration-300 hover:translate-y-[-2px]"
             >
               <div className="flex justify-between items-start mb-2">
-                <h3 className="text-lg font-medium">{task.title}</h3>
+                <h3 className="text-lg font-bold">{task.title}</h3>
                 <Badge className={getPriorityColor(task.priority)}>
                   {task.priority}
                 </Badge>
               </div>
-              <p className="text-sm text-muted-foreground mb-2">{task.details}</p>
+              <p className="text-sm text-muted-foreground mb-3">{task.details}</p>
               <div className="text-xs text-muted-foreground">
-                Due: {new Date(task.date).toLocaleDateString()}
+                Due: {new Date(task.date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
               </div>
             </div>
           ))
