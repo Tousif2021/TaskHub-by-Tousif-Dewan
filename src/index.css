@@ -153,6 +153,6 @@
 
 @layer utilities {
   .card-glass {
-    @apply bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-gray-100 dark:border-gray-800 shadow-[0_4px_15px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_15px_rgba(0,0,0,0.1)];
+    @apply bg-white/95 dark:bg-slate-800/95 border border-gray-100 dark:border-gray-800 shadow-[0_4px_15px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_15px_rgba(0,0,0,0.1)];
   }
 }
