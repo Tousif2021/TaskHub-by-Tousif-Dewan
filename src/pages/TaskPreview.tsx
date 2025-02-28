@@ -22,10 +22,9 @@ const TaskPreview = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const printRef = useRef<HTMLDivElement>(null);
 
+  // Fix: The content property needs to be provided during function call, not as an option
   const handlePrint = useReactToPrint({
     documentTitle: "Task List",
-    // The fix for the TypeScript error - useReactToPrint expects "content" as a function
-    content: () => printRef.current,
   });
 
   const { data: tasks = [], isLoading } = useQuery({
@@ -84,8 +83,12 @@ const TaskPreview = () => {
           <h1 className="text-2xl font-bold">Task List</h1>
         </div>
         <div className="flex gap-2">
-          {/* Fix for the TypeScript error - directly call handlePrint on click */}
-          <Button variant="outline" size="icon" onClick={() => handlePrint()}>
+          {/* Fix: Pass the printRef when the function is called */}
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={() => handlePrint(undefined, () => printRef.current)}
+          >
             <Printer className="h-5 w-5" />
           </Button>
         </div>
