@@ -101,6 +101,22 @@ const App = () => {
       setIsLoaded(true);
     }, 500);
     
+    // Add Capacitor-specific initialization if needed
+    const checkPlatform = async () => {
+      try {
+        if (window.Capacitor) {
+          console.log("Running on Capacitor");
+          // Initialize any native plugins here
+        } else {
+          console.log("Running on web");
+        }
+      } catch (error) {
+        console.error("Platform check error:", error);
+      }
+    };
+    
+    checkPlatform();
+    
     return () => clearTimeout(timer);
   }, []);
 
