@@ -38,8 +38,7 @@ const TaskPreview = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const printRef = useRef<HTMLDivElement>(null);
 
-  const handlePrintClick = useReactToPrint({
-    content: () => printRef.current,
+  const handlePrint = useReactToPrint({
     documentTitle: "Task List",
     onBeforeGetContent: () => {
       return new Promise<void>((resolve) => {
@@ -51,6 +50,13 @@ const TaskPreview = () => {
       console.log("Print completed");
     }
   });
+
+  // Create a handler that passes the ref to the print function
+  const handlePrintClick = () => {
+    if (printRef.current) {
+      handlePrint({ print: () => {}, element: printRef.current });
+    }
+  };
 
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["task-preview"],
