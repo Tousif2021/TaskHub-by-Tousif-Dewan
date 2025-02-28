@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, Calendar, Clock, Flag, CheckCircle, Circle, Search, Plus } from "lucide-react";
+import { ChevronLeft, Calendar, Clock, Flag, CheckCircle, Circle, Search, Plus, Trash2, MoreVertical } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { format, isToday, isTomorrow, isThisWeek, isAfter } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Task {
   id: string;
@@ -29,6 +45,8 @@ const Reminders = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch tasks from Supabase
   useEffect(() => {
@@ -129,6 +147,41 @@ const Reminders = () => {
         description: error.message || "Could not update task status",
         variant: "destructive"
       });
+    }
+  };
+
+  // Delete task function
+  const deleteTask = async () => {
+    if (!taskToDelete) return;
+
+    try {
+      setIsDeleting(true);
+      const { error } = await supabase
+        .from("tasks")
+        .delete()
+        .eq("id", taskToDelete.id);
+      
+      if (error) throw error;
+      
+      // Update local state to remove the deleted task
+      setTasks(tasks.filter(task => task.id !== taskToDelete.id));
+      
+      toast({
+        title: "Task deleted",
+        description: "Task has been permanently removed",
+      });
+      
+      // Reset the taskToDelete
+      setTaskToDelete(null);
+    } catch (error: any) {
+      console.error("Error deleting task:", error);
+      toast({
+        title: "Error deleting task",
+        description: error.message || "Could not delete task",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -313,7 +366,26 @@ const Reminders = () => {
                           <h3 className={`font-medium ${task.completed ? "line-through" : ""}`}>
                             {task.title}
                           </h3>
-                          {renderPriorityBadge(task.priority)}
+                          <div className="flex items-center gap-2">
+                            {renderPriorityBadge(task.priority)}
+                            
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                  <MoreVertical className="h-4 w-4 text-gray-500" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-40">
+                                <DropdownMenuItem
+                                  className="text-red-600 focus:text-red-600 cursor-pointer"
+                                  onClick={() => setTaskToDelete(task)}
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
                         </div>
                         
                         {task.description && (
@@ -341,6 +413,43 @@ const Reminders = () => {
           ))}
         </div>
       )}
+
+      {/* Delete Task Confirmation Dialog */}
+      <Dialog open={!!taskToDelete} onOpenChange={(open) => !open && setTaskToDelete(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Task</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this task? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {taskToDelete && (
+            <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md my-2">
+              <h4 className="font-medium">{taskToDelete.title}</h4>
+              {taskToDelete.description && (
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{taskToDelete.description}</p>
+              )}
+            </div>
+          )}
+          
+          <DialogFooter className="flex justify-between">
+            <DialogClose asChild>
+              <Button variant="outline" className="w-1/2">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button 
+              variant="destructive" 
+              className="w-1/2"
+              onClick={deleteTask}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete Task"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 };
