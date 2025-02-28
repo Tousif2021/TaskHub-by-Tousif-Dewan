@@ -3,8 +3,11 @@ import { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import { format, isAfter, isBefore, isToday, addDays } from "date-fns";
 import { Check, Clock, Calendar } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
-// Mock data structure
+// Interface for reminder structure
 interface Reminder {
   id: string;
   title: string;
@@ -13,50 +16,44 @@ interface Reminder {
   completed: boolean;
 }
 
-// For demo, using mock data
-const mockReminders: Reminder[] = [
-  {
-    id: "1",
-    title: "Project Deadline",
-    description: "Complete the final report",
-    date: addDays(new Date(), 2),
-    completed: false,
-  },
-  {
-    id: "2",
-    title: "Team Meeting",
-    description: "Weekly sprint planning",
-    date: addDays(new Date(), 1),
-    completed: false,
-  },
-  {
-    id: "3",
-    title: "Doctor Appointment",
-    description: "Annual checkup",
-    date: addDays(new Date(), -1),
-    completed: true,
-  },
-  {
-    id: "4",
-    title: "Pay Bills",
-    description: "Electricity and water",
-    date: new Date(),
-    completed: false,
-  },
-];
-
 const Reminders = () => {
-  const [reminders, setReminders] = useState<Reminder[]>(mockReminders);
   const [filter, setFilter] = useState<"all" | "today" | "upcoming" | "overdue">("all");
 
-  const toggleComplete = (id: string) => {
-    setReminders(
-      reminders.map((reminder) =>
-        reminder.id === id
-          ? { ...reminder, completed: !reminder.completed }
-          : reminder
-      )
-    );
+  // Convert tasks to reminders format
+  const { data: reminders = [], isLoading, refetch } = useQuery({
+    queryKey: ["reminders"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("*")
+        .order("due_date", { ascending: true });
+
+      if (error) throw error;
+      
+      return (data || []).map((task) => ({
+        id: task.id,
+        title: task.title,
+        description: task.description || "",
+        date: new Date(task.due_date),
+        completed: task.completed || false,
+      }));
+    },
+  });
+
+  const toggleComplete = async (id: string, completed: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("tasks")
+        .update({ completed })
+        .eq("id", id);
+
+      if (error) throw error;
+      refetch();
+      toast.success(completed ? "Reminder completed!" : "Reminder uncompleted");
+    } catch (error) {
+      console.error("Error updating reminder:", error);
+      toast.error("Failed to update reminder");
+    }
   };
 
   const getFilteredReminders = () => {
@@ -109,12 +106,16 @@ const Reminders = () => {
       </div>
 
       <div className="space-y-4">
-        {filteredReminders.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center py-8 text-muted-foreground">
+            Loading reminders...
+          </div>
+        ) : filteredReminders.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             No reminders found
           </div>
         ) : (
-          filteredReminders.map((reminder, index) => {
+          filteredReminders.map((reminder) => {
             const status = getReminderStatus(reminder);
             
             return (
@@ -132,7 +133,7 @@ const Reminders = () => {
               >
                 <div className="flex items-start gap-3">
                   <div 
-                    onClick={() => toggleComplete(reminder.id)}
+                    onClick={() => toggleComplete(reminder.id, !reminder.completed)}
                     className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full cursor-pointer flex items-center justify-center ${
                       reminder.completed
                         ? "bg-accent text-accent-foreground"

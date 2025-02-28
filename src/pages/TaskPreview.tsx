@@ -7,38 +7,16 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
-// Mock data for tasks
-const mockTasks = [
-  {
-    id: 1,
-    title: "Complete project proposal",
-    details: "Finish the proposal for the new client project",
-    date: "2023-12-15",
-    priority: "high",
-  },
-  {
-    id: 2,
-    title: "Weekly team meeting",
-    details: "Discuss progress and blockers with the team",
-    date: "2023-12-12",
-    priority: "medium",
-  },
-  {
-    id: 3,
-    title: "Update documentation",
-    details: "Update the API documentation with recent changes",
-    date: "2023-12-18",
-    priority: "low",
-  },
-  {
-    id: 4,
-    title: "Client call",
-    details: "Follow up call with the client about project requirements",
-    date: "2023-12-14",
-    priority: "high",
-  },
-];
+interface Task {
+  id: string;
+  title: string;
+  details: string;
+  date: string;
+  priority: string;
+}
 
 const TaskPreview = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -49,7 +27,27 @@ const TaskPreview = () => {
     documentTitle: "Task List",
   });
 
-  const filteredTasks = mockTasks.filter(task => 
+  const { data: tasks = [], isLoading } = useQuery({
+    queryKey: ["task-preview"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("*")
+        .order("due_date", { ascending: true });
+
+      if (error) throw error;
+      
+      return (data || []).map((task) => ({
+        id: task.id,
+        title: task.title,
+        details: task.description || "",
+        date: task.due_date,
+        priority: task.priority.toLowerCase(),
+      }));
+    },
+  });
+
+  const filteredTasks = tasks.filter(task => 
     task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     task.details.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -105,7 +103,11 @@ const TaskPreview = () => {
       </div>
 
       <div ref={printRef} className="space-y-4 mt-6">
-        {filteredTasks.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center py-10 text-muted-foreground">
+            Loading tasks...
+          </div>
+        ) : filteredTasks.length === 0 ? (
           <div className="text-center py-10 text-muted-foreground">
             No tasks found. Try a different search term.
           </div>

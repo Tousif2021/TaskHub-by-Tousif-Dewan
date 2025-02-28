@@ -5,16 +5,96 @@ import { FileIcon, FolderIcon, ChevronLeft, Clock, Download, Trash2, Eye } from 
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
-import Navigation from "@/components/Navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 
+interface FileItem {
+  id: string;
+  name: string;
+  type: string;
+  size: number;
+  created_at: string;
+  path: string;
+}
+
 const Files = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [previewFile, setPreviewFile] = useState<{url: string, name: string, type: string} | null>(null);
+  
+  const { data: files = [], isLoading, refetch } = useQuery({
+    queryKey: ["files"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("files")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data as FileItem[];
+    }
+  });
+  
+  const filteredFiles = searchQuery 
+    ? files.filter(file => 
+        file.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        file.type.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : files;
+
+  const downloadFile = async (file: FileItem) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('files')
+        .download(file.path);
+        
+      if (error) throw error;
+      
+      // Create a download link
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.name;
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast.success(`Downloaded ${file.name}`);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      toast.error("Failed to download file");
+    }
+  };
+
+  const deleteFile = async (id: string, name: string) => {
+    try {
+      const { error } = await supabase
+        .from("files")
+        .delete()
+        .eq("id", id);
+        
+      if (error) throw error;
+      
+      refetch();
+      toast.success(`Deleted ${name}`);
+    } catch (error) {
+      console.error("Error deleting file:", error);
+      toast.error("Failed to delete file");
+    }
+  };
+  
+  // Group files by type to create folders
+  const filesByType: Record<string, FileItem[]> = {};
+  files.forEach(file => {
+    const type = file.type.split('/')[0] || 'other';
+    if (!filesByType[type]) {
+      filesByType[type] = [];
+    }
+    filesByType[type].push(file);
+  });
  
   return (
     <div className="min-h-screen p-6 pb-20">
@@ -42,49 +122,41 @@ const Files = () => {
       <div className="mb-8">
         <h2 className="text-lg font-semibold mb-3">Recent Files</h2>
         <div className="space-y-2">
-          <FileItem 
-            name="Quarterly Report.pdf"
-            type="pdf"
-            size="2.4 MB"
-            updatedAt={new Date(2023, 5, 15)}
-            onPreview={() => setPreviewFile({
-              url: 'https://example.com/preview.pdf',
-              name: 'Quarterly Report.pdf',
-              type: 'pdf'
-            })}
-          />
-          <FileItem 
-            name="Team Photo.jpg"
-            type="jpg"
-            size="3.1 MB"
-            updatedAt={new Date(2023, 6, 20)}
-            onPreview={() => setPreviewFile({
-              url: 'https://example.com/preview.jpg',
-              name: 'Team Photo.jpg',
-              type: 'jpg'
-            })}
-          />
-          <FileItem 
-            name="Project Timeline.xlsx"
-            type="xlsx"
-            size="1.8 MB"
-            updatedAt={new Date(2023, 7, 5)}
-            onPreview={() => setPreviewFile({
-              url: 'https://example.com/preview.xlsx',
-              name: 'Project Timeline.xlsx',
-              type: 'xlsx'
-            })}
-          />
+          {isLoading ? (
+            <div className="text-center py-8 text-muted-foreground">Loading files...</div>
+          ) : filteredFiles.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              {searchQuery ? "No files matching your search" : "No files uploaded yet"}
+            </div>
+          ) : (
+            filteredFiles.map(file => (
+              <FileItemComponent 
+                key={file.id}
+                file={file}
+                onPreview={() => setPreviewFile({
+                  url: `${supabase.storage.from('files').getPublicUrl(file.path).data.publicUrl}`,
+                  name: file.name,
+                  type: file.type
+                })}
+                onDelete={() => deleteFile(file.id, file.name)}
+                onDownload={() => downloadFile(file)}
+              />
+            ))
+          )}
         </div>
       </div>
       
       <div>
         <h2 className="text-lg font-semibold mb-3">Folders</h2>
         <div className="grid grid-cols-2 gap-3">
-          <FolderItem name="Documents" count={12} />
-          <FolderItem name="Images" count={34} />
-          <FolderItem name="Projects" count={7} />
-          <FolderItem name="Shared with me" count={19} />
+          {Object.entries(filesByType).map(([type, files]) => (
+            <FolderItem key={type} name={type.charAt(0).toUpperCase() + type.slice(1)} count={files.length} />
+          ))}
+          {Object.keys(filesByType).length === 0 && !isLoading && (
+            <div className="col-span-2 text-center py-8 text-muted-foreground">
+              No folders available
+            </div>
+          )}
         </div>
       </div>
       
@@ -94,15 +166,22 @@ const Files = () => {
             <DialogTitle>{previewFile?.name}</DialogTitle>
           </DialogHeader>
           <div className="aspect-video bg-secondary/30 rounded-md flex items-center justify-center">
-            {/* This would be replaced with an actual preview component */}
-            <div className="text-center p-8">
-              <FileIcon className="mx-auto h-12 w-12 mb-3 text-muted-foreground" />
-              <p>Preview not available</p>
-              <Button variant="outline" className="mt-4" onClick={() => toast.success("File download started")}>
-                <Download className="h-4 w-4 mr-2" />
-                Download
-              </Button>
-            </div>
+            {previewFile?.type.startsWith('image/') ? (
+              <img 
+                src={previewFile.url} 
+                alt={previewFile.name} 
+                className="max-h-full max-w-full object-contain"
+              />
+            ) : (
+              <div className="text-center p-8">
+                <FileIcon className="mx-auto h-12 w-12 mb-3 text-muted-foreground" />
+                <p>Preview not available</p>
+                <Button variant="outline" className="mt-4" onClick={() => toast.success("File download started")}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
+                </Button>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
@@ -110,27 +189,37 @@ const Files = () => {
   );
 };
 
-const FileItem = ({ 
-  name, 
-  type, 
-  size, 
-  updatedAt, 
-  onPreview
+const FileItemComponent = ({ 
+  file,
+  onPreview,
+  onDelete,
+  onDownload
 }: { 
-  name: string; 
-  type: string;
-  size: string;
-  updatedAt: Date;
+  file: FileItem;
   onPreview: () => void;
+  onDelete: () => void;
+  onDownload: () => void;
 }) => {
   const getIconColor = () => {
-    switch(type) {
+    const fileType = file.type.split('/')[1];
+    switch(fileType) {
       case 'pdf': return 'text-red-500';
+      case 'jpeg':
       case 'jpg':
-      case 'png': return 'text-blue-500';
-      case 'xlsx': return 'text-green-500';
+      case 'png': 
+      case 'gif': return 'text-blue-500';
+      case 'xlsx':
+      case 'csv': return 'text-green-500';
       default: return 'text-gray-500';
     }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
   };
 
   return (
@@ -139,13 +228,13 @@ const FileItem = ({
         <FileIcon className="h-5 w-5" />
       </div>
       <div className="flex-1 min-w-0">
-        <h3 className="font-medium truncate">{name}</h3>
+        <h3 className="font-medium truncate">{file.name}</h3>
         <div className="flex text-xs text-muted-foreground">
-          <span>{size}</span>
+          <span>{formatFileSize(file.size)}</span>
           <span className="mx-1">•</span>
           <span className="flex items-center">
             <Clock className="h-3 w-3 mr-1" />
-            {formatDistanceToNow(updatedAt, { addSuffix: true })}
+            {formatDistanceToNow(new Date(file.created_at), { addSuffix: true })}
           </span>
         </div>
       </div>
@@ -153,10 +242,10 @@ const FileItem = ({
         <Button variant="ghost" size="icon" onClick={onPreview}>
           <Eye className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={() => toast.success(`Downloaded ${name}`)}>
+        <Button variant="ghost" size="icon" onClick={onDownload}>
           <Download className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={() => toast.success(`Deleted ${name}`)}>
+        <Button variant="ghost" size="icon" onClick={onDelete}>
           <Trash2 className="h-4 w-4" />
         </Button>
       </div>
