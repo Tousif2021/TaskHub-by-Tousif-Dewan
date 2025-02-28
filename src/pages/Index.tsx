@@ -1,8 +1,12 @@
 
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Bell, FolderDot, Plus, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/auth-provider";
+import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
+import { isToday, isFuture, format } from "date-fns";
 
 interface MenuItemProps {
   to: string;
@@ -28,8 +32,86 @@ const MenuItem = ({ to, icon: Icon, title, description, color }: MenuItemProps) 
   </div>
 );
 
+// Array of motivational quotes
+const motivationalQuotes = [
+  "Dream big!",
+  "Stay focused.",
+  "Embrace the day.",
+  "Keep pushing forward.",
+  "Make it happen.",
+  "Believe in yourself.",
+  "Take the leap.",
+  "Seize the moment.",
+  "Just do it.",
+  "Rise and shine.",
+  "Achieve greatness today.",
+  "Stay determined.",
+  "Unleash your potential."
+];
+
 const Index = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const [firstName, setFirstName] = useState("");
+  const [quote, setQuote] = useState("");
+  const [taskStats, setTaskStats] = useState({
+    todayTasks: 0,
+    upcomingTasks: 0
+  });
+  
+  // Get random motivational quote
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * motivationalQuotes.length);
+    setQuote(motivationalQuotes[randomIndex]);
+  }, []);
+  
+  // Extract first name from full name
+  useEffect(() => {
+    if (profile && profile.full_name) {
+      const nameParts = profile.full_name.split(" ");
+      setFirstName(nameParts[0]);
+    }
+  }, [profile]);
+  
+  // Fetch task statistics
+  useEffect(() => {
+    const fetchTaskStats = async () => {
+      if (!user) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from("tasks")
+          .select("*")
+          .eq("user_id", user.id);
+        
+        if (error) {
+          console.error("Error fetching tasks:", error);
+          return;
+        }
+        
+        // Count today's and upcoming tasks
+        let todayCount = 0;
+        let upcomingCount = 0;
+        
+        data.forEach(task => {
+          const taskDate = new Date(task.due_date);
+          if (isToday(taskDate) && !task.completed) {
+            todayCount++;
+          } else if (isFuture(taskDate) && !isToday(taskDate) && !task.completed) {
+            upcomingCount++;
+          }
+        });
+        
+        setTaskStats({
+          todayTasks: todayCount,
+          upcomingTasks: upcomingCount
+        });
+      } catch (err) {
+        console.error("Failed to fetch task statistics:", err);
+      }
+    };
+    
+    fetchTaskStats();
+  }, [user]);
 
   return (
     <div 
@@ -55,6 +137,61 @@ const Index = () => {
           </Link>
         )}
       </header>
+
+      {user && (
+        <div className="mb-8 max-w-4xl mx-auto">
+          <div className="bg-white/80 dark:bg-slate-800/80 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+              Welcome back, {firstName || "User"}!
+            </h2>
+            <p className="text-accent dark:text-accent/80 font-medium mt-1">{quote}</p>
+            
+            <div className="flex gap-4 mt-6">
+              <div className="flex-1 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-900/30">
+                <h3 className="text-sm text-blue-700 dark:text-blue-300 font-medium">Due Today</h3>
+                <div className="mt-2 flex items-end gap-2">
+                  <span className="text-3xl font-bold text-blue-700 dark:text-blue-300">
+                    {taskStats.todayTasks}
+                  </span>
+                  <span className="text-blue-600 dark:text-blue-400 text-sm mb-0.5">
+                    task{taskStats.todayTasks !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                <Link to="/reminders">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="mt-2 text-blue-600 dark:text-blue-400 px-0 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                  >
+                    View all
+                  </Button>
+                </Link>
+              </div>
+              
+              <div className="flex-1 bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-100 dark:border-amber-900/30">
+                <h3 className="text-sm text-amber-700 dark:text-amber-300 font-medium">Upcoming</h3>
+                <div className="mt-2 flex items-end gap-2">
+                  <span className="text-3xl font-bold text-amber-700 dark:text-amber-300">
+                    {taskStats.upcomingTasks}
+                  </span>
+                  <span className="text-amber-600 dark:text-amber-400 text-sm mb-0.5">
+                    task{taskStats.upcomingTasks !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                <Link to="/reminders">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="mt-2 text-amber-600 dark:text-amber-400 px-0 hover:bg-amber-100 dark:hover:bg-amber-900/30"
+                  >
+                    View all
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div
         className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto"
