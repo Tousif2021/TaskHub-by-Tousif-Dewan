@@ -16,17 +16,19 @@
   --radius: 0.5rem;
   
   /* Dot colors */
-  --dot-bright-blue: #1EAEDB;
-  --dot-ocean-blue: #0EA5E9;
-  --dot-sky-blue: #33C3F0;
-  --dot-soft-blue: #D3E4FD;
+  --dot-blue: #4f46e5;
+  --dot-light-blue: #93c5fd;
 }
 
 body {
   font-family: 'Inter', sans-serif;
   background-color: #ffffff;
+  background-image: 
+    radial-gradient(var(--dot-blue) 1px, transparent 1px),
+    radial-gradient(var(--dot-light-blue) 1px, transparent 1px);
+  background-size: 50px 50px, 30px 30px;
+  background-position: 0 0, 25px 25px;
   color: var(--foreground);
-  transition: background-color 0.3s ease, color 0.3s ease;
   margin: 0;
   padding: 0;
   min-height: 100vh;
@@ -34,49 +36,11 @@ body {
   overflow-x: hidden;
 }
 
-/* Simplified dot background */
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  background-image: 
-    radial-gradient(circle at 15% 10%, var(--dot-bright-blue) 0, var(--dot-bright-blue) 0.5px, transparent 1px),
-    radial-gradient(circle at 35% 15%, var(--dot-soft-blue) 0, var(--dot-soft-blue) 2px, transparent 3px),
-    radial-gradient(circle at 55% 35%, var(--dot-ocean-blue) 0, var(--dot-ocean-blue) 1px, transparent 2px),
-    radial-gradient(circle at 75% 70%, var(--dot-bright-blue) 0, var(--dot-bright-blue) 0.6px, transparent 1px),
-    radial-gradient(circle at 80% 90%, var(--dot-ocean-blue) 0, var(--dot-ocean-blue) 0.8px, transparent 1px);
-  background-size: 300px 300px;
-}
-
-/* Simplified central dots */
-body::after {
-  content: "";
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 600px;
-  height: 600px;
-  z-index: -1;
-  background-image: 
-    radial-gradient(circle at 40% 30%, var(--dot-bright-blue) 0, var(--dot-bright-blue) 1px, transparent 2px),
-    radial-gradient(circle at 50% 50%, var(--dot-ocean-blue) 0, var(--dot-ocean-blue) 2px, transparent 3px),
-    radial-gradient(circle at 60% 40%, var(--dot-soft-blue) 0, var(--dot-soft-blue) 3px, transparent 4px);
-  background-size: 200px 200px;
-  opacity: 0.9;
-}
-
 .dark body {
   background-color: #0f172a;
-}
-
-.dark body::before,
-.dark body::after {
-  opacity: 0.3;
+  background-image: 
+    radial-gradient(rgba(99, 102, 241, 0.15) 1px, transparent 1px),
+    radial-gradient(rgba(147, 197, 253, 0.1) 1px, transparent 1px);
 }
 
 .loading {
