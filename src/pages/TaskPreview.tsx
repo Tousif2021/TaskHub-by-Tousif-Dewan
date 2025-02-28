@@ -38,18 +38,19 @@ const TaskPreview = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const printRef = useRef<HTMLDivElement>(null);
 
-  // Using React.MouseEvent to properly type the handler
-  const handlePrintClick = () => {
-    if (printRef.current !== null) {
-      // Create a new print function for this specific call
-      const printContent = useReactToPrint({
-        documentTitle: "Task List",
+  const handlePrintClick = useReactToPrint({
+    content: () => printRef.current,
+    documentTitle: "Task List",
+    onBeforeGetContent: () => {
+      return new Promise<void>((resolve) => {
+        console.log("Preparing print content");
+        resolve();
       });
-      
-      // Call the print function with our content
-      printContent(() => printRef.current);
+    },
+    onAfterPrint: () => {
+      console.log("Print completed");
     }
-  };
+  });
 
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["task-preview"],
