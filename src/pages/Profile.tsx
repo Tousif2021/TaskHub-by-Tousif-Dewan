@@ -240,7 +240,7 @@ const Profile = () => {
           </div>
         </div>
 
-        <div className="max-w-xl mx-auto pt-4">
+        <div className="max-w-xl mx-auto pt-2">
           <Button 
             variant="destructive" 
             className="w-full h-11 hover:bg-red-600 hover:scale-[1.01] transition-all font-medium"
@@ -251,7 +251,7 @@ const Profile = () => {
           </Button>
         </div>
 
-        <div className="flex flex-col items-center mt-6 text-center pt-4 border-t border-gray-200 dark:border-gray-800 max-w-xl mx-auto">
+        <div className="flex flex-col items-center mt-3 text-center pt-3 border-t border-gray-200 dark:border-gray-800 max-w-xl mx-auto">
           <div className="font-extrabold text-lg">
             <span className="text-[#1e40af]">Task</span>
             <span className="text-primary">Hub</span>
