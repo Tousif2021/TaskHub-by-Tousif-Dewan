@@ -36,11 +36,16 @@ const Index = () => {
       className="min-h-screen p-8 pb-24"
     >
       <header className="mb-10 flex justify-between items-center">
-        <h1 
-          className="text-2xl font-extrabold text-primary"
-        >
-          Task Manager
-        </h1>
+        <div className="flex items-center">
+          <h1 className="text-2xl font-extrabold">
+            <span className="text-[#1e40af]">Task</span>
+            <span className="text-primary">Hub</span>
+            <span className="text-xs ml-1 text-[#1e40af] font-medium align-top">®</span>
+          </h1>
+          <div className="ml-2 px-1.5 py-0.5 bg-[#1e40af]/10 rounded text-[10px] text-[#1e40af] font-medium uppercase tracking-wider">
+            Beta
+          </div>
+        </div>
         
         {!user && (
           <Link to="/auth">
