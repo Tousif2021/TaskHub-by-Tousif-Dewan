@@ -14,20 +14,11 @@
   --input: #e5e7eb;
   --ring: rgba(79, 70, 229, 0.3);
   --radius: 0.5rem;
-  
-  /* Dot colors */
-  --dot-blue: #4f46e5;
-  --dot-light-blue: #93c5fd;
 }
 
 body {
   font-family: 'Inter', sans-serif;
   background-color: #ffffff;
-  background-image: 
-    radial-gradient(var(--dot-blue) 1px, transparent 1px),
-    radial-gradient(var(--dot-light-blue) 1px, transparent 1px);
-  background-size: 50px 50px, 30px 30px;
-  background-position: 0 0, 25px 25px;
   color: var(--foreground);
   margin: 0;
   padding: 0;
@@ -38,9 +29,6 @@ body {
 
 .dark body {
   background-color: #0f172a;
-  background-image: 
-    radial-gradient(rgba(99, 102, 241, 0.15) 1px, transparent 1px),
-    radial-gradient(rgba(147, 197, 253, 0.1) 1px, transparent 1px);
 }
 
 .loading {
