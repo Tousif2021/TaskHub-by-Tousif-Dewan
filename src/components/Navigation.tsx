@@ -1,3 +1,4 @@
+
 import { useLocation, Link } from "react-router-dom";
 import { Home, List, Bell, User, FolderDot } from "lucide-react";
 
@@ -24,11 +25,11 @@ const NavItem = ({
         : "text-primary/60 hover:text-accent hover:scale-105"
     }`}
   >
-    <div>
-      <Icon className="w-6 h-6" />
+    <div className={`w-6 h-6 flex items-center justify-center ${active ? 'transform-gpu transition-transform' : ''}`}>
+      <Icon className={`w-5 h-5 ${active ? 'fill-current' : ''}`} />
     </div>
     <span 
-      className="text-xs font-medium"
+      className="text-[10px] font-medium"
     >
       {label}
     </span>
@@ -43,7 +44,7 @@ const Navigation = ({ showBackButton = false }: NavigationProps) => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 flex justify-around items-center py-4 px-6 bg-background/80 backdrop-blur-md border-t">
+    <nav className="fixed bottom-0 left-0 right-0 flex justify-around items-center py-3 px-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t z-50">
       <NavItem 
         icon={Home} 
         label="Home" 
@@ -58,7 +59,7 @@ const Navigation = ({ showBackButton = false }: NavigationProps) => {
       />
       <NavItem 
         icon={List} 
-        label="Task Preview" 
+        label="Tasks" 
         to="/tasks"
         active={isActive('/tasks')}
       />

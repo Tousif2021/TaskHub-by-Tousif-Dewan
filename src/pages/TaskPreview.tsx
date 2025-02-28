@@ -23,8 +23,9 @@ const TaskPreview = () => {
   const printRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = useReactToPrint({
-    content: () => printRef.current,
     documentTitle: "Task List",
+    // The fix for the TypeScript error - useReactToPrint expects "content" as a function
+    content: () => printRef.current,
   });
 
   const { data: tasks = [], isLoading } = useQuery({
@@ -71,7 +72,7 @@ const TaskPreview = () => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.2 }}
-      className="container mx-auto px-4 py-6"
+      className="container mx-auto px-4 py-6 pb-20"
     >
       <div className="mb-6 flex justify-between items-center">
         <div className="flex items-center">
@@ -83,7 +84,8 @@ const TaskPreview = () => {
           <h1 className="text-2xl font-bold">Task List</h1>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="icon" onClick={handlePrint}>
+          {/* Fix for the TypeScript error - directly call handlePrint on click */}
+          <Button variant="outline" size="icon" onClick={() => handlePrint()}>
             <Printer className="h-5 w-5" />
           </Button>
         </div>
@@ -115,7 +117,7 @@ const TaskPreview = () => {
           filteredTasks.map((task) => (
             <div 
               key={task.id} 
-              className="p-4 border rounded-lg bg-card hover:shadow-md transition-shadow"
+              className="p-4 border rounded-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-md transition-shadow"
             >
               <div className="flex justify-between items-start mb-2">
                 <h3 className="text-lg font-medium">{task.title}</h3>

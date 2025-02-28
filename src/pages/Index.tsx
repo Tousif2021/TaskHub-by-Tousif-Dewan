@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Bell, FolderDot, Plus, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,7 @@ const MenuItem = ({ to, icon: Icon, title, description, color }: MenuItemProps) 
   <div>
     <Link to={to}>
       <div 
-        className="p-6 rounded-lg border border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-md transition-all duration-300"
+        className="p-6 rounded-lg border border-gray-100 dark:border-gray-800 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-md transition-all duration-300"
       >
         <div className={`w-12 h-12 rounded-full ${color} flex items-center justify-center mb-4`}>
           <Icon className="w-6 h-6" />
@@ -38,8 +39,8 @@ const Index = () => {
         >
           Task Manager
         </h1>
-        <Link to="/previous">
-          <Button variant="ghost">Back</Button>
+        <Link to="/add">
+          <Button variant="ghost">Add Task</Button>
         </Link>
       </header>
 
@@ -55,10 +56,10 @@ const Index = () => {
         />
 
         <MenuItem 
-          to="/add"
+          to="/tasks"
           icon={Plus}
-          title="Add Task"
-          description="Create a new task with details"
+          title="Task List"
+          description="View all your tasks"
           color="bg-green-500/10 text-green-600 dark:text-green-400"
         />
 
