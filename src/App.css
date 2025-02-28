@@ -20,7 +20,6 @@
   --dot-ocean-blue: #0EA5E9;
   --dot-sky-blue: #33C3F0;
   --dot-soft-blue: #D3E4FD;
-  --dot-medium-blue: #0FA0CE;
 }
 
 body {
@@ -35,7 +34,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Add the dot background */
+/* Simplified dot background */
 body::before {
   content: "";
   position: fixed;
@@ -46,23 +45,14 @@ body::before {
   z-index: -1;
   background-image: 
     radial-gradient(circle at 15% 10%, var(--dot-bright-blue) 0, var(--dot-bright-blue) 0.5px, transparent 1px),
-    radial-gradient(circle at 22% 25%, var(--dot-ocean-blue) 0, var(--dot-ocean-blue) 1px, transparent 2px),
     radial-gradient(circle at 35% 15%, var(--dot-soft-blue) 0, var(--dot-soft-blue) 2px, transparent 3px),
-    radial-gradient(circle at 45% 40%, var(--dot-sky-blue) 0, var(--dot-sky-blue) 0.8px, transparent 1.5px),
-    radial-gradient(circle at 55% 35%, var(--dot-medium-blue) 0, var(--dot-medium-blue) 1.2px, transparent 2px),
-    radial-gradient(circle at 65% 60%, var(--dot-soft-blue) 0, var(--dot-soft-blue) 1.5px, transparent 2px),
+    radial-gradient(circle at 55% 35%, var(--dot-ocean-blue) 0, var(--dot-ocean-blue) 1px, transparent 2px),
     radial-gradient(circle at 75% 70%, var(--dot-bright-blue) 0, var(--dot-bright-blue) 0.6px, transparent 1px),
-    radial-gradient(circle at 85% 25%, var(--dot-sky-blue) 0, var(--dot-sky-blue) 0.9px, transparent 1.5px),
-    radial-gradient(circle at 90% 45%, var(--dot-ocean-blue) 0, var(--dot-ocean-blue) 1px, transparent 1.5px),
-    radial-gradient(circle at 25% 80%, var(--dot-medium-blue) 0, var(--dot-medium-blue) 0.7px, transparent 1px),
-    radial-gradient(circle at 40% 60%, var(--dot-soft-blue) 0, var(--dot-soft-blue) 1.8px, transparent 2.5px),
-    radial-gradient(circle at 60% 80%, var(--dot-sky-blue) 0, var(--dot-sky-blue) 1px, transparent 1.5px),
     radial-gradient(circle at 80% 90%, var(--dot-ocean-blue) 0, var(--dot-ocean-blue) 0.8px, transparent 1px);
-  /* Generate dots across the entire background */
   background-size: 300px 300px;
 }
 
-/* Add the central concentration of dots */
+/* Simplified central dots */
 body::after {
   content: "";
   position: fixed;
@@ -75,18 +65,8 @@ body::after {
   background-image: 
     radial-gradient(circle at 40% 30%, var(--dot-bright-blue) 0, var(--dot-bright-blue) 1px, transparent 2px),
     radial-gradient(circle at 50% 50%, var(--dot-ocean-blue) 0, var(--dot-ocean-blue) 2px, transparent 3px),
-    radial-gradient(circle at 60% 40%, var(--dot-soft-blue) 0, var(--dot-soft-blue) 3px, transparent 4px),
-    radial-gradient(circle at 45% 55%, var(--dot-sky-blue) 0, var(--dot-sky-blue) 1.5px, transparent 2px),
-    radial-gradient(circle at 55% 45%, var(--dot-medium-blue) 0, var(--dot-medium-blue) 2.5px, transparent 3px),
-    radial-gradient(circle at 30% 60%, var(--dot-soft-blue) 0, var(--dot-soft-blue) 2px, transparent 3px),
-    radial-gradient(circle at 70% 30%, var(--dot-bright-blue) 0, var(--dot-bright-blue) 1.2px, transparent 2px),
-    radial-gradient(circle at 35% 45%, var(--dot-sky-blue) 0, var(--dot-sky-blue) 1.8px, transparent 2.5px),
-    radial-gradient(circle at 65% 55%, var(--dot-ocean-blue) 0, var(--dot-ocean-blue) 2px, transparent 3px),
-    radial-gradient(circle at 45% 70%, var(--dot-medium-blue) 0, var(--dot-medium-blue) 1.5px, transparent 2px),
-    radial-gradient(circle at 55% 30%, var(--dot-soft-blue) 0, var(--dot-soft-blue) 2.5px, transparent 3.5px),
-    radial-gradient(circle at 30% 50%, var(--dot-sky-blue) 0, var(--dot-sky-blue) 1.8px, transparent 2.5px),
-    radial-gradient(circle at 70% 50%, var(--dot-ocean-blue) 0, var(--dot-ocean-blue) 1.5px, transparent 2px);
-  background-size: 150px 150px;
+    radial-gradient(circle at 60% 40%, var(--dot-soft-blue) 0, var(--dot-soft-blue) 3px, transparent 4px);
+  background-size: 200px 200px;
   opacity: 0.9;
 }
 
