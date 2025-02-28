@@ -22,11 +22,18 @@ const TaskPreview = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const printRef = useRef<HTMLDivElement>(null);
 
-  // Correctly setup useReactToPrint with the content property in its options
-  const handlePrint = useReactToPrint({
-    documentTitle: "Task List",
-    content: () => printRef.current,
-  });
+  // Using React.MouseEvent to properly type the handler
+  const handlePrintClick = () => {
+    if (printRef.current !== null) {
+      // Create a new print function for this specific call
+      const printContent = useReactToPrint({
+        documentTitle: "Task List",
+      });
+      
+      // Call the print function with our content
+      printContent(() => printRef.current);
+    }
+  };
 
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["task-preview"],
@@ -84,11 +91,10 @@ const TaskPreview = () => {
           <h1 className="text-2xl font-bold">Task List</h1>
         </div>
         <div className="flex gap-2">
-          {/* Simply call handlePrint with no arguments */}
           <Button 
             variant="outline" 
             size="icon" 
-            onClick={handlePrint}
+            onClick={handlePrintClick}
           >
             <Printer className="h-5 w-5" />
           </Button>
