@@ -17,7 +17,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogClose
 } from "@/components/ui/dialog";
 import {
@@ -47,6 +46,7 @@ const Reminders = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Fetch tasks from Supabase
   useEffect(() => {
@@ -132,9 +132,11 @@ const Reminders = () => {
       if (error) throw error;
       
       // Update local state to reflect the change
-      setTasks(tasks.map(task => 
-        task.id === taskId ? { ...task, completed: !currentStatus } : task
-      ));
+      setTasks(prevTasks => 
+        prevTasks.map(task => 
+          task.id === taskId ? { ...task, completed: !currentStatus } : task
+        )
+      );
       
       toast({
         title: !currentStatus ? "Task completed" : "Task marked incomplete",
@@ -150,31 +152,58 @@ const Reminders = () => {
     }
   };
 
-  // Delete task function
+  // Delete task function - optimized to prevent freezing
   const deleteTask = async () => {
     if (!taskToDelete) return;
 
     try {
       setIsDeleting(true);
+      
+      // Optimistically update UI before the actual deletion
+      setTasks(prevTasks => prevTasks.filter(task => task.id !== taskToDelete.id));
+      setFilteredTasks(prevTasks => prevTasks.filter(task => task.id !== taskToDelete.id));
+      
+      // Close dialog immediately
+      setIsDialogOpen(false);
+      
+      // Perform the actual deletion
       const { error } = await supabase
         .from("tasks")
         .delete()
         .eq("id", taskToDelete.id);
       
-      if (error) throw error;
-      
-      // Update local state to remove the deleted task
-      setTasks(tasks.filter(task => task.id !== taskToDelete.id));
-      
-      toast({
-        title: "Task deleted",
-        description: "Task has been permanently removed",
-      });
-      
-      // Reset the taskToDelete
-      setTaskToDelete(null);
+      if (error) {
+        throw error;
+      } else {
+        toast({
+          title: "Task deleted",
+          description: "Task has been permanently removed",
+        });
+      }
     } catch (error: any) {
       console.error("Error deleting task:", error);
+      
+      // Fetch tasks again to restore correct state if deletion failed
+      if (user) {
+        const { data } = await supabase
+          .from("tasks")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("due_date", { ascending: true });
+          
+        if (data) {
+          setTasks(data);
+          // Re-apply filters
+          setFilteredTasks(data.filter(task => {
+            // Reapply current filters
+            if (selectedFilter === "completed") return task.completed;
+            if (selectedFilter === "pending") return !task.completed;
+            // Add other filter cases as needed
+            return true;
+          }));
+        }
+      }
+      
       toast({
         title: "Error deleting task",
         description: error.message || "Could not delete task",
@@ -182,7 +211,14 @@ const Reminders = () => {
       });
     } finally {
       setIsDeleting(false);
+      setTaskToDelete(null);
     }
+  };
+
+  // Prepare task deletion by opening dialog
+  const confirmTaskDeletion = (task: Task) => {
+    setTaskToDelete(task);
+    setIsDialogOpen(true);
   };
 
   // Render priority badge
@@ -378,7 +414,7 @@ const Reminders = () => {
                               <DropdownMenuContent align="end" className="w-40">
                                 <DropdownMenuItem
                                   className="text-red-600 focus:text-red-600 cursor-pointer"
-                                  onClick={() => setTaskToDelete(task)}
+                                  onClick={() => confirmTaskDeletion(task)}
                                 >
                                   <Trash2 className="mr-2 h-4 w-4" />
                                   Delete
@@ -415,7 +451,7 @@ const Reminders = () => {
       )}
 
       {/* Delete Task Confirmation Dialog */}
-      <Dialog open={!!taskToDelete} onOpenChange={(open) => !open && setTaskToDelete(null)}>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Delete Task</DialogTitle>
