@@ -29,28 +29,33 @@ const Profile = () => {
   
   // Temporary state for editing
   const [editData, setEditData] = useState({...profileData});
+  const [isLoading, setIsLoading] = useState(false);
 
   // Update profile data when auth profile loads
   useEffect(() => {
     if (profile && user) {
-      const formattedDate = new Date(profile.joined_at || user.created_at).toLocaleDateString('en-US', {
-        month: 'long',
-        year: 'numeric'
-      });
-      
-      setProfileData({
-        fullName: profile.full_name || 'Anonymous User',
-        email: user.email || '',
-        organization: profile.organization || '',
-        joinedAt: formattedDate
-      });
-      
-      setEditData({
-        fullName: profile.full_name || 'Anonymous User',
-        email: user.email || '',
-        organization: profile.organization || '',
-        joinedAt: formattedDate
-      });
+      try {
+        const formattedDate = new Date(profile.joined_at || user.created_at).toLocaleDateString('en-US', {
+          month: 'long',
+          year: 'numeric'
+        });
+        
+        setProfileData({
+          fullName: profile.full_name || 'Anonymous User',
+          email: user.email || '',
+          organization: profile.organization || '',
+          joinedAt: formattedDate
+        });
+        
+        setEditData({
+          fullName: profile.full_name || 'Anonymous User',
+          email: user.email || '',
+          organization: profile.organization || '',
+          joinedAt: formattedDate
+        });
+      } catch (error) {
+        console.error("Error formatting profile data:", error);
+      }
     }
   }, [profile, user]);
 
@@ -66,6 +71,7 @@ const Profile = () => {
   // Handle save profile
   const handleSaveProfile = async () => {
     try {
+      setIsLoading(true);
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -90,6 +96,8 @@ const Profile = () => {
         description: error.message || "There was an error updating your profile.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -114,7 +122,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen pb-16 bg-white/50 dark:bg-slate-900/50">
+    <div className="min-h-screen pb-16 bg-white dark:bg-slate-900">
       <div className="p-4 space-y-4">
         <Button 
           variant="ghost" 
@@ -145,17 +153,34 @@ const Profile = () => {
           </div>
           {isEditing ? (
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="gap-1 h-8 text-xs hover:bg-accent hover:text-white transition-colors" onClick={handleSaveProfile}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="gap-1 h-8 text-xs hover:bg-accent hover:text-white transition-colors"
+                onClick={handleSaveProfile}
+                disabled={isLoading}
+              >
                 <Check className="h-3.5 w-3.5" />
-                Save
+                {isLoading ? "Saving..." : "Save"}
               </Button>
-              <Button variant="outline" size="sm" className="gap-1 h-8 text-xs hover:bg-red-500 hover:text-white transition-colors" onClick={handleEditToggle}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="gap-1 h-8 text-xs hover:bg-red-500 hover:text-white transition-colors"
+                onClick={handleEditToggle}
+                disabled={isLoading}
+              >
                 <X className="h-3.5 w-3.5" />
                 Cancel
               </Button>
             </div>
           ) : (
-            <Button variant="outline" size="sm" className="gap-1 h-8 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" onClick={handleEditToggle}>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-1 h-8 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" 
+              onClick={handleEditToggle}
+            >
               <Edit className="h-3.5 w-3.5" />
               Edit Profile
             </Button>
@@ -163,7 +188,7 @@ const Profile = () => {
         </div>
 
         <div className="space-y-3 max-w-xl mx-auto">
-          <div className="flex items-center justify-between p-3 rounded-lg bg-white/80 dark:bg-slate-800/80 shadow-sm border border-gray-100 dark:border-gray-800">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-slate-800 shadow-sm border border-gray-100 dark:border-gray-800">
             <div className="flex items-center gap-2">
               {theme === 'dark' ? (
                 <Moon className="h-4 w-4 text-accent" />
@@ -175,7 +200,7 @@ const Profile = () => {
             <Switch checked={theme === 'dark'} onCheckedChange={toggleTheme} />
           </div>
 
-          <div className="rounded-lg border border-gray-100 dark:border-gray-800 bg-white/80 dark:bg-slate-800/80 p-4 shadow-sm">
+          <div className="rounded-lg border border-gray-100 dark:border-gray-800 bg-white dark:bg-slate-800 p-4 shadow-sm">
             <div className="space-y-3">
               {isEditing ? (
                 <>

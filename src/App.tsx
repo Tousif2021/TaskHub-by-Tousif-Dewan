@@ -97,7 +97,11 @@ const App = () => {
 
   useEffect(() => {
     // Simple initialization to ensure app loads properly
-    setIsLoaded(true);
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 500);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   if (!isLoaded) {

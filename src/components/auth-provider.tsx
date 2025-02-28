@@ -34,7 +34,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         const { data, error } = await supabase.auth.getSession();
         if (error) {
-          throw error;
+          console.error("Auth session error:", error.message);
+          setIsLoading(false);
+          return;
         }
         
         setSession(data.session);
@@ -47,7 +49,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } catch (error: any) {
         console.error("Error getting session:", error.message);
       } finally {
-        setIsLoading(false);
+        // Ensure loading state is cleared even if there's an error
+        setTimeout(() => setIsLoading(false), 300);
       }
     };
 
@@ -56,6 +59,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
+        console.log("Auth state changed:", event);
         setSession(newSession);
         setUser(newSession?.user || null);
         
@@ -82,7 +86,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .single();
       
       if (error) {
-        throw error;
+        console.error("Profile fetch error:", error.message);
+        return;
       }
       
       setProfile(data);
@@ -126,15 +131,21 @@ export const useAuth = () => useContext(AuthContext);
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, isLoading } = useAuth();
   const navigate = useNavigate();
+  const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !session) {
+      setRedirecting(true);
       navigate("/auth");
     }
   }, [session, isLoading, navigate]);
 
-  if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  if (isLoading || redirecting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-primary animate-pulse">Loading...</div>
+      </div>
+    );
   }
 
   return session ? <>{children}</> : null;
