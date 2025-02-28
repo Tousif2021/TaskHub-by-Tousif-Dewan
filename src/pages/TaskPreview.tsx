@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface Task {
   id: string;
@@ -37,46 +38,66 @@ interface TaskFromDB {
 const TaskPreview = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const printRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
+  // This fixes the printing functionality
   const handlePrint = useReactToPrint({
     documentTitle: "Task List",
-    onBeforeGetContent: () => {
-      return new Promise<void>((resolve) => {
-        console.log("Preparing print content");
-        resolve();
-      });
-    },
-    onAfterPrint: () => {
-      console.log("Print completed");
-    }
   });
 
   // Create a handler that passes the ref to the print function
   const handlePrintClick = () => {
     if (printRef.current) {
-      handlePrint({ print: () => {}, element: printRef.current });
+      handlePrint(printRef.current);
+    } else {
+      toast({
+        title: "Print Error",
+        description: "Unable to print the task list. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["task-preview"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("tasks")
-        .select("*")
-        .order("due_date", { ascending: true });
+      try {
+        const { data, error } = await supabase
+          .from("tasks")
+          .select("*")
+          .order("due_date", { ascending: true });
 
-      if (error) throw error;
-      
-      return (data || []).map((task: TaskFromDB) => ({
-        id: task.id,
-        title: task.title,
-        details: task.description || "",
-        date: task.due_date,
-        priority: task.priority.toLowerCase(),
-        category: task.category || "Personal",
-      }));
+        if (error) {
+          console.error("Error fetching tasks:", error);
+          toast({
+            title: "Error fetching tasks",
+            description: error.message,
+            variant: "destructive"
+          });
+          throw error;
+        }
+        
+        console.log("Fetched tasks:", data);
+        
+        return (data || []).map((task: TaskFromDB) => ({
+          id: task.id,
+          title: task.title,
+          details: task.description || "",
+          date: task.due_date,
+          priority: task.priority.toLowerCase(),
+          category: task.category || "Personal",
+        }));
+      } catch (error) {
+        console.error("Failed to fetch tasks:", error);
+        return [];
+      }
     },
+    // Refresh data every 10 seconds
+    refetchInterval: 10000,
+    // Always fetch fresh data when component mounts
+    refetchOnMount: true,
+    // Refresh when window regains focus
+    refetchOnWindowFocus: true,
   });
 
   const filteredTasks = tasks.filter(task => 
