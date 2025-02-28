@@ -17,16 +17,25 @@ const NavItem = ({
 }) => (
   <Link
     to={to}
-    className={`flex items-center justify-center py-2 px-3 transition-all duration-300 ${
-      active 
-        ? "text-[#0EA5E9]" 
-        : "text-primary/60 hover:text-[#0EA5E9]"
-    }`}
+    className="relative flex items-center justify-center h-full py-3 flex-1"
   >
-    <div className={`flex items-center justify-center ${
-      active ? 'bg-[#F1F1F1] dark:bg-slate-800 rounded-md p-2' : 'p-2'
-    }`}>
-      <Icon className="w-5 h-5" />
+    <div 
+      className={`
+        flex items-center justify-center w-full h-full
+        ${active ? 'bg-[#F1F1F1] dark:bg-slate-800' : 'bg-transparent'}
+        relative
+      `}
+    >
+      <Icon 
+        className={`w-5 h-5 ${
+          active 
+            ? "text-[#0EA5E9]" 
+            : "text-primary/60 hover:text-[#0EA5E9]"
+        }`} 
+      />
+      {active && (
+        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#0EA5E9]"></div>
+      )}
     </div>
   </Link>
 );
@@ -39,7 +48,7 @@ const Navigation = ({ showBackButton = false }: NavigationProps) => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 flex justify-around items-center py-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-50 shadow-[0_-1px_5px_rgba(0,0,0,0.05)] dark:shadow-[0_-1px_5px_rgba(0,0,0,0.2)]">
+    <nav className="fixed bottom-0 left-0 right-0 flex justify-between items-stretch h-14 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-50 shadow-[0_-1px_5px_rgba(0,0,0,0.05)] dark:shadow-[0_-1px_5px_rgba(0,0,0,0.2)]">
       <NavItem 
         icon={Home} 
         to="/"
