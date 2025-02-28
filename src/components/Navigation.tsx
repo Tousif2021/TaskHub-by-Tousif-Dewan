@@ -23,18 +23,18 @@ const NavItem = ({
       className={`
         flex items-center justify-center w-full h-full
         ${active ? 'bg-[#F1F1F1] dark:bg-slate-800' : 'bg-transparent'}
-        relative
+        relative transition-all duration-300 ease-in-out
       `}
     >
       <Icon 
-        className={`w-5 h-5 ${
+        className={`w-5 h-5 transition-colors duration-300 ease-in-out ${
           active 
-            ? "text-[#0EA5E9]" 
-            : "text-primary/60 hover:text-[#0EA5E9]"
+            ? "text-[#1e40af]" 
+            : "text-primary/60 hover:text-[#1e40af]"
         }`} 
       />
       {active && (
-        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#0EA5E9]"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#1e40af] transition-all duration-300 ease-in-out"></div>
       )}
     </div>
   </Link>
