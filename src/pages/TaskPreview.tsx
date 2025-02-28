@@ -2,7 +2,7 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useReactToPrint } from "react-to-print";
-import { ChevronLeft, Printer, Search } from "lucide-react";
+import { ChevronLeft, Printer, Search, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -91,6 +91,16 @@ const TaskPreview = () => {
           <h1 className="text-2xl font-bold">Task List</h1>
         </div>
         <div className="flex gap-2">
+          <Link to="/add">
+            <Button 
+              variant="default" 
+              size="sm" 
+              className="h-9 mr-1 gap-1"
+            >
+              <Plus className="h-4 w-4" />
+              Add Task
+            </Button>
+          </Link>
           <Button 
             variant="outline" 
             size="icon" 
@@ -121,8 +131,21 @@ const TaskPreview = () => {
             Loading tasks...
           </div>
         ) : filteredTasks.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            No tasks found. Try a different search term.
+          <div className="text-center py-8 flex flex-col items-center">
+            <p className="text-muted-foreground mb-4">
+              {searchTerm ? "No tasks found. Try a different search term." : "No tasks found. Add your first task!"}
+            </p>
+            {!searchTerm && (
+              <Link to="/add">
+                <Button 
+                  variant="default" 
+                  className="gap-1"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add New Task
+                </Button>
+              </Link>
+            )}
           </div>
         ) : (
           filteredTasks.map((task) => (
