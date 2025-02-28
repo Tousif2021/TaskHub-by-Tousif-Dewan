@@ -250,6 +250,15 @@ const Profile = () => {
             Sign Out
           </Button>
         </div>
+
+        <div className="flex flex-col items-center mt-12 text-center pt-6 border-t border-gray-200 dark:border-gray-800 max-w-xl mx-auto">
+          <div className="font-extrabold text-lg">
+            <span className="text-[#1e40af]">Task</span>
+            <span className="text-primary">Hub</span>
+            <span className="text-xs ml-1 text-[#1e40af] font-medium align-top">®</span>
+          </div>
+          <p className="text-sm text-muted-foreground mt-1">Managed by Tousif Dewan</p>
+        </div>
       </div>
     </div>
   );
