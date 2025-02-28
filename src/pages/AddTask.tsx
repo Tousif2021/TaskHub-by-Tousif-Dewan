@@ -26,7 +26,7 @@ const AddTask = () => {
   const { toast } = useToast();
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
-  const [priority, setPriority] = useState("medium");
+  const [priority, setPriority] = useState("Medium");
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -69,13 +69,14 @@ const AddTask = () => {
       // Default time to noon if not specified
       const formattedTime = "12:00:00";
       
+      // Make sure priority is capitalized as per database constraint
       const { error } = await supabase
         .from("tasks")
         .insert([
           {
             title,
             description: details,
-            priority,
+            priority, // Now using capitalized values: "Low", "Medium", "High"
             due_date: formattedDate,
             due_time: formattedTime,
             user_id: user.id,
@@ -83,7 +84,10 @@ const AddTask = () => {
           }
         ]);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
       
       toast({
         title: "Success",
@@ -149,15 +153,15 @@ const AddTask = () => {
           <Label className="text-base">Priority Level</Label>
           <RadioGroup value={priority} onValueChange={setPriority} className="flex space-x-4">
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="low" id="low" className="text-green-600" />
+              <RadioGroupItem value="Low" id="low" className="text-green-600" />
               <Label htmlFor="low" className="text-green-600 font-medium">Low</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="medium" id="medium" className="text-yellow-600" />
+              <RadioGroupItem value="Medium" id="medium" className="text-yellow-600" />
               <Label htmlFor="medium" className="text-yellow-600 font-medium">Medium</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="high" id="high" className="text-red-600" />
+              <RadioGroupItem value="High" id="high" className="text-red-600" />
               <Label htmlFor="high" className="text-red-600 font-medium">High</Label>
             </div>
           </RadioGroup>
