@@ -151,7 +151,7 @@ const TaskPreview = () => {
           filteredTasks.map((task) => (
             <div 
               key={task.id} 
-              className="p-5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm hover:shadow-md transition-all duration-300 hover:translate-y-[-2px]"
+              className="p-5 rounded-lg card-glass hover:shadow-md transition-all duration-300 hover:translate-y-[-2px]"
             >
               <div className="flex justify-between items-start mb-2">
                 <h3 className="text-lg font-bold">{task.title}</h3>

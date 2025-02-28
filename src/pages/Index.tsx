@@ -20,7 +20,7 @@ const MenuItem = ({ to, icon: Icon, title, description, color }: MenuItemProps) 
   <div>
     <Link to={to}>
       <div 
-        className="p-3 rounded-lg border border-gray-100 dark:border-gray-800 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm hover:shadow-md transition-all duration-300 hover:translate-y-[-2px] h-full"
+        className="p-3 rounded-lg card-glass hover:shadow-md transition-all duration-300 hover:translate-y-[-2px] h-full"
       >
         <div className={`w-9 h-9 rounded-full ${color} flex items-center justify-center mb-2`}>
           <Icon className="w-4 h-4" />
@@ -151,14 +151,14 @@ const Index = () => {
 
       {user && !isLoading && (
         <div className="mb-5 max-w-4xl mx-auto">
-          <div className="bg-white/80 dark:bg-slate-800/80 p-4 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+          <div className="card-glass p-4 rounded-xl">
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
               Welcome back, {firstName || "User"}!
             </h2>
             <p className="text-[#1e40af] dark:text-[#3b82f6] text-sm font-medium mt-0.5">{quote}</p>
             
             <div className="flex flex-col sm:flex-row gap-3 mt-4">
-              <div className="flex-1 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-900/30">
+              <div className="flex-1 bg-blue-50/80 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-900/30">
                 <h3 className="text-xs text-blue-700 dark:text-blue-300 font-medium">Due Today</h3>
                 <div className="mt-1 flex items-end gap-1.5">
                   <span className="text-2xl font-bold text-blue-700 dark:text-blue-300">
@@ -179,7 +179,7 @@ const Index = () => {
                 </Link>
               </div>
               
-              <div className="flex-1 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-100 dark:border-amber-900/30">
+              <div className="flex-1 bg-amber-50/80 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-100 dark:border-amber-900/30">
                 <h3 className="text-xs text-amber-700 dark:text-amber-300 font-medium">Upcoming</h3>
                 <div className="mt-1 flex items-end gap-1.5">
                   <span className="text-2xl font-bold text-amber-700 dark:text-amber-300">
@@ -206,19 +206,19 @@ const Index = () => {
       
       {user && isLoading && (
         <div className="mb-5 max-w-4xl mx-auto">
-          <div className="bg-white/80 dark:bg-slate-800/80 p-4 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+          <div className="card-glass p-4 rounded-xl">
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
               Welcome back, {firstName || "User"}!
             </h2>
             <p className="text-[#1e40af] dark:text-[#3b82f6] text-sm font-medium mt-0.5">{quote}</p>
             
             <div className="flex flex-col sm:flex-row gap-3 mt-4">
-              <div className="flex-1 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg animate-pulse">
+              <div className="flex-1 bg-gray-50/80 dark:bg-gray-800/50 p-3 rounded-lg animate-pulse">
                 <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
                 <div className="h-6 w-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
               </div>
               
-              <div className="flex-1 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg animate-pulse">
+              <div className="flex-1 bg-gray-50/80 dark:bg-gray-800/50 p-3 rounded-lg animate-pulse">
                 <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
                 <div className="h-6 w-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
               </div>
